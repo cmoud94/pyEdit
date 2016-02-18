@@ -1,4 +1,5 @@
-from tkinter import *
+from Tkinter import *
+from PIL import Image, ImageTk
 
 
 class PyEdit:
@@ -46,10 +47,13 @@ class PyEdit:
         frame_toolbar.grid(column=0, row=0)
 
         # Toolbar buttons
-        button_new_file = Button(frame_toolbar, text='New File')
+        img = ImageTk.PhotoImage(Image.open('icons/'))
+        button_new_file = Button(frame_toolbar, image=img)
         button_new_file.grid(column=0, row=0)
+
         button_open = Button(frame_toolbar, text='Open')
         button_open.grid(column=1, row=0)
+
         button_save = Button(frame_toolbar, text='Save')
         button_save.grid(column=2, row=0)
 
