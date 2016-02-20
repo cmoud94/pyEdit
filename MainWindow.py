@@ -1,5 +1,5 @@
 from Tkinter import *
-from ttk import Notebook
+from ttk import Notebook, Style
 
 
 class PyEdit:
@@ -18,8 +18,11 @@ class PyEdit:
         # Toolbar init
         self.frame_toolbar = self.toolbar_init()
 
-        # Editor init
-        self.editor = self.editor_init()
+        # Tabs init
+        self.notebook = self.notebook_init()
+
+        # Status bar init
+        self.status_bar = self.status_bar_init()
 
         self.root.update()
 
@@ -68,18 +71,76 @@ class PyEdit:
 
         return frame_toolbar
 
-    def editor_init(self):
-        tabs = Notebook(self.root)
+    def notebook_init(self):
+        self.tab_img_1 = PhotoImage('img_close', file='icons/CloseBtn_Normal.png')
+        self.tab_img_2 = PhotoImage('img_close_pressed', file='icons/CloseBtn_Pressed.png')
+        self.tab_img_3 = PhotoImage('img_close_mouse_over', file='icons/CloseBtn_MouseOver.png')
+
+        style = Style()
+        style.element_create('close', 'image', 'img_close',
+                             ('active', 'pressed', '!disabled', 'img_close_pressed'),
+                             ('active', '!disabled', 'img_close_mouse_over'), border=1, sticky='')
+
+        style.layout('NotebookBtn', [('NotebookBtn.client', {'sticky': 'nsew'})])
+        style.layout('NotebookBtn.Tab', [
+            ('NotebookBtn.tab', {'sticky': 'nsew', 'children':
+                [('NotebookBtn.padding', {'side': 'top', 'sticky': 'nsew', 'children':
+                    [('NotebookBtn.focus', {'side': 'top', 'sticky': 'nsew', 'children':
+                        [('NotebookBtn.label', {'side': 'left', 'sticky': ''}),
+                         ('NotebookBtn.close', {'side': 'left', 'sticky': ''})]
+                                            })]
+                                          })]
+                                 })
+        ])
+
+        self.root.bind_class('TNotebook', '<ButtonPress-1>', self.tab_btn_press, True)
+        self.root.bind_class('TNotebook', '<ButtonRelease-1>', self.tab_btn_release)
+
+        tabs = Notebook(self.root, style='NotebookBtn')
         tabs.grid(column=0, row=1, sticky='nsew')
         tabs.columnconfigure(0, weight=1)
         tabs.rowconfigure(0, weight=1)
 
         text1 = Text(tabs)
-        text1.grid(column=0, row=0)
 
-        tabs.add(text1, text='Tab 1')
+        tabs.add(text1, text='Document 1')
 
         return tabs
+
+    def tab_btn_press(self, event):
+        x, y, widget = event.x, event.y, event.widget
+        elem = widget.identify(x, y)
+        index = widget.index('@%d,%d' % (x, y))
+
+        if 'close' in elem:
+            widget.state(['pressed'])
+            widget.pressed_index = index
+
+    def tab_btn_release(self, event):
+        x, y, widget = event.x, event.y, event.widget
+
+        if not widget.instate(['pressed']):
+            return
+
+        elem = widget.identify(x, y)
+        index = widget.index('@%d,%d' % (x, y))
+
+        if 'close' in elem and widget.pressed_index == index:
+            widget.forget(index)
+            widget.event_generate('<<NotebookClosedTab>>')
+
+        widget.state(['!pressed'])
+        widget.pressed_index = None
+
+    def status_bar_init(self):
+        status_bar = Frame(self.root)
+        status_bar.grid(column=0, row=2, sticky='nsew')
+        status_bar.config(relief='sunken')
+
+        label = Label(status_bar, text='Status bar!')
+        label.grid(column=0, row=0)
+
+        return status_bar
 
 
 tk = Tk()
