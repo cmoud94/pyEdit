@@ -1,5 +1,5 @@
 from Tkinter import *
-from PIL import Image, ImageTk
+from ttk import Notebook
 
 
 class PyEdit:
@@ -7,18 +7,21 @@ class PyEdit:
         # Window init
         self.root = root
         self.root.title('pyEdit')
-        self.root.geometry('500x400')
+        self.root.minsize(500, 430)
         self.root.option_add('*tearOff', FALSE)
-
-        # Main frame init
-        self.frame_main = Frame(root)
-        self.frame_main.grid(column=0, row=0)
+        self.root.columnconfigure(0, weight=1)
+        self.root.rowconfigure(1, weight=1)
 
         # Menu init
         self.menu_bar = self.menu_init()
 
         # Toolbar init
         self.frame_toolbar = self.toolbar_init()
+
+        # Editor init
+        self.editor = self.editor_init()
+
+        self.root.update()
 
     def menu_init(self):
         # Main menu_bar
@@ -43,21 +46,40 @@ class PyEdit:
         return menu_bar
 
     def toolbar_init(self):
-        frame_toolbar = Frame(self.frame_main)
-        frame_toolbar.grid(column=0, row=0)
+        frame_toolbar = Frame(self.root)
+        frame_toolbar.grid(column=0, row=0, sticky='nw')
 
         # Toolbar buttons
-        img = ImageTk.PhotoImage(Image.open('icons/'))
-        button_new_file = Button(frame_toolbar, image=img)
+        self.img_new_file = PhotoImage(file='icons/24x24/document-new-8.png')
+        button_new_file = Button(frame_toolbar, image=self.img_new_file, relief='flat', activebackground='LightBlue3')
         button_new_file.grid(column=0, row=0)
 
-        button_open = Button(frame_toolbar, text='Open')
+        self.img_open = PhotoImage(file='icons/24x24/document-open-7.png')
+        button_open = Button(frame_toolbar, image=self.img_open, relief='flat', activebackground='LightBlue3')
         button_open.grid(column=1, row=0)
 
-        button_save = Button(frame_toolbar, text='Save')
+        self.img_save = PhotoImage(file='icons/24x24/document-save-2.png')
+        button_save = Button(frame_toolbar, image=self.img_save, relief='flat', activebackground='LightBlue3')
         button_save.grid(column=2, row=0)
 
+        self.img_search = PhotoImage(file='icons/24x24/edit-find-5.png')
+        button_search = Button(frame_toolbar, image=self.img_search, relief='flat', activebackground='LightBlue3')
+        button_search.grid(column=3, row=0)
+
         return frame_toolbar
+
+    def editor_init(self):
+        tabs = Notebook(self.root)
+        tabs.grid(column=0, row=1, sticky='nsew')
+        tabs.columnconfigure(0, weight=1)
+        tabs.rowconfigure(0, weight=1)
+
+        text1 = Text(tabs)
+        text1.grid(column=0, row=0)
+
+        tabs.add(text1, text='Tab 1')
+
+        return tabs
 
 
 tk = Tk()
