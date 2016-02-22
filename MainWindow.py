@@ -6,6 +6,11 @@ from TextEditor import *
 
 class PyEdit:
     def __init__(self, root):
+        # Obsahuje instance tridy Editor, ktera obsahuje cestu k souboru, samotny nazev souboru, obsah souboru
+        self.editors = []
+
+        self.active_editor = None
+
         # Style init
         self.style = Style()
         # self.style.theme_use('clam')
@@ -42,9 +47,6 @@ class PyEdit:
 
         self.root.update()
 
-        # Obsahuje instance tridy Editor, ktera obsahuje cestu k souboru, samotny nazev souboru, obsah souboru
-        self.editors = []
-
     def menu_init(self):
         # Main menu_bar
         menu_bar = Menu(self.root)
@@ -75,18 +77,30 @@ class PyEdit:
         frame_toolbar.grid(column=0, row=0, sticky='nw')
 
         # Toolbar buttons
-        button_new_file = Button(frame_toolbar, image=self.img_new_file, relief='flat', activebackground='LightBlue3',
+        button_new_file = Button(frame_toolbar,
+                                 image=self.img_new_file,
+                                 relief='flat',
+                                 activebackground='LightBlue3',
                                  command=self.new_tab)
         button_new_file.grid(column=0, row=0)
 
-        button_open = Button(frame_toolbar, image=self.img_open, relief='flat', activebackground='LightBlue3',
+        button_open = Button(frame_toolbar,
+                             image=self.img_open,
+                             relief='flat',
+                             activebackground='LightBlue3',
                              command=self.open_file)
         button_open.grid(column=1, row=0)
 
-        button_save = Button(frame_toolbar, image=self.img_save, relief='flat', activebackground='LightBlue3')
+        button_save = Button(frame_toolbar,
+                             image=self.img_save,
+                             relief='flat',
+                             activebackground='LightBlue3')
         button_save.grid(column=2, row=0)
 
-        button_search = Button(frame_toolbar, image=self.img_search, relief='flat', activebackground='LightBlue3')
+        button_search = Button(frame_toolbar,
+                               image=self.img_search,
+                               relief='flat',
+                               activebackground='LightBlue3')
         button_search.grid(column=3, row=0)
 
         return frame_toolbar
@@ -159,6 +173,7 @@ class PyEdit:
 
     def new_tab(self, file_path='', file_name='Document', content=''):
         self.editors.append(TextEditor(self.notebook, file_path, file_name, content))
+        self.active_editor = self.editors[-1]
 
     def open_file(self):
         file_path = filedialog.askopenfilename()
