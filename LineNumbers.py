@@ -18,7 +18,7 @@ class LineNumbers(Thread):
                                 bg='light gray')
         self.line_widget.grid(column=0, row=0, sticky='ns')
 
-        self.update_interval = 100  # ms
+        self.update_interval = 10  # ms
         self.line_num = ''
 
     def run(self):
@@ -36,12 +36,12 @@ class LineNumbers(Thread):
                     first_char_bbox = list(first_char_bbox)
                     last_char_bbox = list(last_char_bbox)
                     while first_char_bbox[1] != last_char_bbox[1]:
-                        # TODO: Change to actual font/line size
-                        first_char_bbox[1] += 15
+                        first_char_bbox[1] += first_char_bbox[3]
                         self.line_num += '\n'
             self.line_widget.config(state='normal')
             self.line_widget.delete('1.0', 'end')
             self.line_widget.insert('1.0', self.line_num)
-            self.line_widget.yview_moveto(self.text_widget.yview()[0])
+            #self.line_widget.yview_moveto(self.text_widget.yview()[0])
+            self.line_widget.yview_scroll()
             self.line_widget.config(state='disabled')
             time.sleep(self.update_interval / 1000.0)
