@@ -1,4 +1,3 @@
-from tkinter import *
 from tkinter import filedialog
 from tkinter.ttk import Notebook, Style
 
@@ -41,9 +40,6 @@ class PyEdit:
         # Status bar init
         self.status_bar = self.status_bar_init()
 
-        # Current line highlight
-        # self.current_line_highlight()
-
         self.root.update()
 
         # Obsahuje instance tridy Editor, ktera obsahuje cestu k souboru, samotny nazev souboru, obsah souboru
@@ -60,7 +56,7 @@ class PyEdit:
         menu_file = Menu(menu_bar)
         menu_file.config(activebackground='LightBlue3')
 
-        menu_file.add_command(label='New File', accelerator='Ctrl+N')
+        menu_file.add_command(label='New File', accelerator='Ctrl+N', command=self.new_tab)
         menu_file.add_command(label='Open', accelerator='Ctrl+O')
         menu_file.add_command(label='Save', accelerator='Ctrl+S')
         menu_file.add_command(label='Save as...', accelerator='Ctrl+Shift+S')
