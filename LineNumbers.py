@@ -18,7 +18,7 @@ class LineNumbers(Thread):
                                 bg='light gray')
         self.line_widget.grid(column=0, row=0, sticky='ns')
 
-        self.update_interval = 10  # ms
+        self.update_interval = 100  # ms
         self.line_num = ''
 
     def run(self):
@@ -29,7 +29,6 @@ class LineNumbers(Thread):
             # int(first_visible_line[:first_visible_line.find('.')])
             for i in range(1, num_lines + 1):
                 self.line_num += str(i) + '\n'
-                self.text_widget.update_idletasks()
                 first_char_bbox = self.text_widget.bbox(self.text_widget.index('%i.0' % i))
                 last_char_bbox = self.text_widget.bbox(self.text_widget.index('%i.end' % i))
                 if first_char_bbox is not None and last_char_bbox is not None:
@@ -41,7 +40,5 @@ class LineNumbers(Thread):
             self.line_widget.config(state='normal')
             self.line_widget.delete('1.0', 'end')
             self.line_widget.insert('1.0', self.line_num)
-            #self.line_widget.yview_moveto(self.text_widget.yview()[0])
-            self.line_widget.yview_scroll()
             self.line_widget.config(state='disabled')
             time.sleep(self.update_interval / 1000.0)
