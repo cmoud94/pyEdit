@@ -45,6 +45,12 @@ class PyEdit:
         # Status bar init
         self.status_bar = self.status_bar_init()
 
+        # Shortcuts init
+        self.root.bind_all('<Control-n>', self.new_tab)
+        self.root.bind_all('<Control-o>', self.open_file)
+        self.root.bind_all('<Control-w>', self.close_tab)
+        self.root.bind_all('<Control-q>', self.app_exit)
+
         self.root.update()
 
     def menu_init(self):
@@ -59,7 +65,7 @@ class PyEdit:
         menu_file.config(activebackground='LightBlue3')
 
         menu_file.add_command(label='New File', accelerator='Ctrl+N', command=self.new_tab)
-        menu_file.add_command(label='Open', accelerator='Ctrl+O')
+        menu_file.add_command(label='Open', accelerator='Ctrl+O', command=self.open_file)
         menu_file.add_command(label='Save', accelerator='Ctrl+S')
         menu_file.add_command(label='Save as...', accelerator='Ctrl+Shift+S')
         menu_file.add_separator()
@@ -135,8 +141,7 @@ class PyEdit:
 
         return tabs
 
-    @staticmethod
-    def tab_btn_press(event):
+    def tab_btn_press(self, event):
         x, y, widget = event.x, event.y, event.widget
         elem = widget.identify(x, y)
         index = widget.index('@%d,%d' % (x, y))
@@ -145,8 +150,7 @@ class PyEdit:
             widget.state(['pressed'])
             widget.pressed_index = index
 
-    @staticmethod
-    def tab_btn_release(event):
+    def tab_btn_release(self, event):
         x, y, widget = event.x, event.y, event.widget
 
         if not widget.instate(['pressed']):
@@ -156,8 +160,9 @@ class PyEdit:
         index = widget.index('@%d,%d' % (x, y))
 
         if 'close' in elem and widget.pressed_index == index:
-            widget.forget(index)
+            # widget.forget(index)
             widget.event_generate('<<NotebookClosedTab>>')
+            self.close_tab()
 
         widget.state(['!pressed'])
         widget.pressed_index = None
@@ -171,11 +176,16 @@ class PyEdit:
 
         return status_bar
 
-    def new_tab(self, file_path='', file_name='Document', content=''):
+    def new_tab(self, event=None, file_path='', file_name='Document', content=''):
         self.editors.append(TextEditor(self.notebook, file_path, file_name, content))
         self.active_editor = self.editors[-1]
+        print('Editors: \n' + str(self.editors))
 
-    def open_file(self):
+    def close_tab(self, event=None):
+        self.notebook.forget(self.notebook.select())
+        print('Editors: \n' + str(self.editors))
+
+    def open_file(self, event=None):
         file_path = filedialog.askopenfilename()
         index = file_path.rfind('/')
         file_name = file_path[index + 1:]
@@ -187,9 +197,12 @@ class PyEdit:
 
         content = file.read(size)
 
-        self.new_tab(file_path, file_name, content)
+        self.new_tab(file_path=file_path, file_name=file_name, content=content)
 
         file.close()
+
+    def app_exit(self, event=None):
+        exit(0)
 
 
 tk = Tk()

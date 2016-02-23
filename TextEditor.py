@@ -20,9 +20,9 @@ class TextEditor:
         self.scroll_bar.grid(column=2, row=0, sticky='ns')
         self.text_widget.config(yscrollcommand=self.scroll_bar.set)
 
-        self.line_number_widget = LineNumbers(self.frame, self.text_widget)
-        self.line_number_widget.daemon = True
-        self.line_number_widget.start()
+        # self.line_number_widget = LineNumbers(self.frame, self.text_widget)
+        # self.line_number_widget.daemon = True
+        # self.line_number_widget.start()
 
         self.notebook.add(self.frame, text=self.file_name, compound='left')
         self.index = self.notebook.index(self.notebook.tabs()[-1])
@@ -35,8 +35,8 @@ class TextEditor:
         if 'moveto' in args[0]:
             print('\t' + args[1])
             self.text_widget.yview(*args)
-            self.line_number_widget.line_widget.yview(*args)
+            # self.line_number_widget.line_widget.yview(*args)
         elif 'scroll' in args[0]:
             print('\t' + args[1] + '\t' + args[2])
             self.text_widget.yview_scroll(args[1], args[2])
-            self.line_number_widget.line_widget.yview_scroll(args[1], args[2])
+            # self.line_number_widget.line_widget.yview_scroll(args[1], args[2])
