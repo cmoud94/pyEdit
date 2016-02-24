@@ -1,4 +1,4 @@
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 from tkinter.ttk import Notebook, Style
 
 from TextEditor import *
@@ -8,8 +8,6 @@ class PyEdit:
     def __init__(self, root):
         # Obsahuje instance tridy Editor, ktera obsahuje cestu k souboru, samotny nazev souboru, obsah souboru
         self.editors = []
-
-        self.active_editor = None
 
         # Style init
         self.style = Style()
@@ -48,8 +46,12 @@ class PyEdit:
         # Shortcuts init
         self.root.bind_all('<Control-n>', self.new_tab)
         self.root.bind_all('<Control-o>', self.open_file)
+        self.root.bind_all('<Control-s>', self.save_file)
         self.root.bind_all('<Control-w>', self.close_tab)
         self.root.bind_all('<Control-q>', self.app_exit)
+
+        # Debug shortcuts
+        self.root.bind_all('<Control-d>', self.debug_file)
 
         self.root.update()
 
@@ -141,14 +143,15 @@ class PyEdit:
 
         return tabs
 
-    def tab_btn_press(self, event):
-        x, y, widget = event.x, event.y, event.widget
-        elem = widget.identify(x, y)
-        index = widget.index('@%d,%d' % (x, y))
+    def tab_btn_press(self, event=None):
+        if event is not None:
+            x, y, widget = event.x, event.y, event.widget
+            elem = widget.identify(x, y)
+            index = widget.index('@%d,%d' % (x, y))
 
-        if 'close' in elem:
-            widget.state(['pressed'])
-            widget.pressed_index = index
+            if 'close' in elem:
+                widget.state(['pressed'])
+                widget.pressed_index = index
 
     def tab_btn_release(self, event):
         x, y, widget = event.x, event.y, event.widget
@@ -178,17 +181,31 @@ class PyEdit:
 
     def new_tab(self, event=None, file_path='', file_name='Document', content=''):
         self.editors.append(TextEditor(self.notebook, file_path, file_name, content))
-        self.active_editor = self.editors[-1]
-        print('Editors: \n' + str(self.editors))
 
     def close_tab(self, event=None):
-        self.notebook.forget(self.notebook.select())
-        print('Editors: \n' + str(self.editors))
+        selected_tab = self.notebook.index(self.notebook.select())
+        if self.editors[selected_tab].text_widget.edit_modified():
+            response = messagebox.askquestion('File edited',
+                                              'Close file without saving?',
+                                              icon='question',
+                                              type='yesnocancel',
+                                              default='cancel',
+                                              parent=self.root)
+            if response == 'no':
+                self.save_file()
+            elif response == 'cancel':
+                return
+        self.editors.remove(self.editors[selected_tab])
+        self.notebook.forget(selected_tab)
+
+    def get_file_name(self, file_path):
+        index = file_path.rfind('/')
+        file_name = file_path[index + 1:]
+        return file_name
 
     def open_file(self, event=None):
         file_path = filedialog.askopenfilename()
-        index = file_path.rfind('/')
-        file_name = file_path[index + 1:]
+        file_name = self.get_file_name(file_path)
 
         file = open(file_path, 'r')
         file.seek(0, 2)
@@ -201,8 +218,32 @@ class PyEdit:
 
         file.close()
 
+    def save_file(self, event=None):
+        selected_tab = self.notebook.index(self.notebook.select())
+        file_path = self.editors[selected_tab].file_path
+        if file_path == '':
+            file_path = filedialog.asksaveasfilename()
+            self.editors[selected_tab].file_path = file_path
+            self.editors[selected_tab].file_name = self.get_file_name(file_path)
+        save_file = open(file_path, 'w')
+        try:
+            save_file.write(self.editors[selected_tab].text_widget.get('1.0', 'end'))
+        except IOError:
+            print('IO error! (save_file)')
+        save_file.close()
+        self.editors[selected_tab].text_widget.edit_modified(False)
+        if not self.editors[selected_tab].text_widget.edit_modified():
+            self.notebook.tab(selected_tab, text=self.editors[selected_tab].file_name)
+
     def app_exit(self, event=None):
         exit(0)
+
+    def debug_file(self, event=None):
+        selected_tab = self.notebook.index(self.notebook.select())
+        print('File name: ' + self.editors[selected_tab].file_name)
+        print('File path: ' + self.editors[selected_tab].file_path)
+        print('File modified: ' + str(self.editors[selected_tab].text_widget.edit_modified()))
+        print('Lines: ' + str(self.editors[selected_tab].text_widget.get('1.0', 'end').count('\n')))
 
 
 tk = Tk()
