@@ -153,7 +153,7 @@ class PyEdit:
                 widget.state(['pressed'])
                 widget.pressed_index = index
 
-    def tab_btn_release(self, event):
+    def tab_btn_release(self, event=None):
         x, y, widget = event.x, event.y, event.widget
 
         if not widget.instate(['pressed']):

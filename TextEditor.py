@@ -31,21 +31,31 @@ class TextEditor:
         # Shortcuts init
         self.text_widget.bind('<Key>', self.key_press)
         self.text_widget.bind('<Configure>', self.window_resize)
+        self.text_widget.bind('<Button>', self.mouse_wheel)
 
-    def scroll_update(self, *args):
+    def scroll_update(self, *event):
         # self.line_number_widget.update()
-        if 'moveto' in args[0]:
-            self.text_widget.yview_moveto(args[1])
-            self.line_number_widget.line_widget.yview_moveto(args[1])
-        elif 'scroll' in args[0]:
-            self.text_widget.yview_scroll(args[1], args[2])
-            self.line_number_widget.line_widget.yview_scroll(args[1], args[2])
+        if 'moveto' in event[0]:
+            self.text_widget.yview_moveto(event[1])
+            self.line_number_widget.line_widget.yview_moveto(event[1])
+        elif 'scroll' in event[0]:
+            self.text_widget.yview_scroll(event[1], event[2])
+            self.line_number_widget.line_widget.yview_scroll(event[1], event[2])
 
-    def key_press(self, args=None):
+    def key_press(self, event=None):
+        self.line_number_widget.update()
         if self.text_widget.edit_modified():
             selected_tab = self.notebook.index(self.notebook.select())
             self.notebook.tab(selected_tab, text='* ' + self.file_name)
-            self.line_number_widget.update()
 
-    def window_resize(self, args=None):
+    def window_resize(self, event=None):
         self.line_number_widget.update()
+
+    # FIXME: Don't work!
+    def mouse_wheel(self, event=None):
+        scroll_up = 4
+        scroll_down = 5
+        if event.num in (scroll_up, scroll_down):
+            self.line_number_widget.line_widget.yview_moveto(self.text_widget.yview()[0])
+            print('txt: ' + str(self.text_widget.yview()))
+            print('ln:  ' + str(self.line_number_widget.line_widget.yview()))
