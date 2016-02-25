@@ -2,12 +2,12 @@ from LineNumbers import *
 
 
 class TextEditor:
-    def __init__(self, notebook, file_path='', file_name='Document', content=''):
-        self.notebook = notebook
+    def __init__(self, parent, file_path='', file_name='Document', content=''):
+        self.parent = parent
         self.file_path = file_path
         self.file_name = file_name
 
-        self.frame = Frame(self.notebook)
+        self.frame = Frame(self.parent.notebook)
         self.frame.grid(column=0, row=0, sticky='nsew')
         self.frame.columnconfigure(1, weight=1)
         self.frame.rowconfigure(0, weight=1)
@@ -24,9 +24,11 @@ class TextEditor:
         self.line_number_widget = LineNumbers(self.frame, self.text_widget)
         self.line_number_widget.update()
 
-        self.notebook.add(self.frame, text=self.file_name, compound='left')
-        self.index = self.notebook.index(self.notebook.tabs()[-1])
-        self.notebook.select(self.index)
+        self.parent.notebook.add(self.frame, text=self.file_name, compound='left')
+        self.index = self.parent.notebook.index(self.parent.notebook.tabs()[-1])
+        self.parent.notebook.select(self.index)
+
+        self.text_widget.focus_set()
 
         # Shortcuts init
         self.text_widget.bind('<Key>', self.key_press)
@@ -45,8 +47,8 @@ class TextEditor:
     def key_press(self, event=None):
         self.line_number_widget.update()
         if self.text_widget.edit_modified():
-            selected_tab = self.notebook.index(self.notebook.select())
-            self.notebook.tab(selected_tab, text='* ' + self.file_name)
+            selected_tab = self.parent.notebook.index(self.parent.notebook.select())
+            self.parent.notebook.tab(selected_tab, text='* ' + self.file_name)
 
     def window_resize(self, event=None):
         self.line_number_widget.update()

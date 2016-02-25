@@ -48,7 +48,9 @@ class PyEdit:
         self.root.bind_all('<Control-o>', self.open_file)
         self.root.bind_all('<Control-s>', self.save_file)
         self.root.bind_all('<Control-w>', self.close_tab)
-        self.root.bind_all('<Control-q>', self.app_exit)
+        self.root.bind_all('<Control-q>', self.window_close)
+
+        self.root.bind('<Destroy>', self.on_destroy)
 
         # Debug shortcuts
         self.root.bind_all('<Control-d>', self.debug_file)
@@ -180,10 +182,12 @@ class PyEdit:
         return status_bar
 
     def new_tab(self, event=None, file_path='', file_name='Document', content=''):
-        self.editors.append(TextEditor(self.notebook, file_path, file_name, content))
+        self.editors.append(TextEditor(self, file_path, file_name, content))
 
     def close_tab(self, event=None):
         selected_tab = self.notebook.index(self.notebook.select())
+        # TODO: Only for debug
+        print('Closing tab \'' + self.editors[selected_tab].file_name + '\'')
         if self.editors[selected_tab].text_widget.edit_modified():
             response = messagebox.askquestion('File edited',
                                               'Close file without saving?',
@@ -228,6 +232,7 @@ class PyEdit:
         save_file = open(file_path, 'w')
         try:
             save_file.write(self.editors[selected_tab].text_widget.get('1.0', 'end'))
+            print('File \'' + self.editors[selected_tab].file_name + '\' has been saved!')
         except IOError:
             print('IO error! (save_file)')
         save_file.close()
@@ -235,14 +240,21 @@ class PyEdit:
         if not self.editors[selected_tab].text_widget.edit_modified():
             self.notebook.tab(selected_tab, text=self.editors[selected_tab].file_name)
 
-    def app_exit(self, event=None):
-        exit(0)
+    def window_close(self, event=None):
+        self.root.destroy()
+
+    def on_destroy(self, event=None):
+        # if self.editors is not None and len(self.editors) > 0:
+        #     for x in self.editors:
+        #         self.notebook.focus_set()
+        #         self.close_tab()
+        pass
 
     def debug_file(self, event=None):
         selected_tab = self.notebook.index(self.notebook.select())
         print('File name: ' + self.editors[selected_tab].file_name)
         print('File path: ' + self.editors[selected_tab].file_path)
-        print('File modified: ' + str(self.editors[selected_tab].text_widget.edit_modified()))
+        print('File modified (from last save): ' + str(self.editors[selected_tab].text_widget.edit_modified()))
         print('Lines: ' + str(self.editors[selected_tab].text_widget.get('1.0', 'end').count('\n')))
 
 
