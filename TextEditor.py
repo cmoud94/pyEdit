@@ -31,7 +31,7 @@ class TextEditor:
         # Shortcuts init
         self.text_widget.bind('<Key>', self.key_press)
         self.text_widget.bind('<Configure>', self.window_resize)
-        self.text_widget.bind('<Button>', self.mouse_wheel)
+        self.text_widget.bind('<ButtonRelease>', self.mouse_wheel)
 
     def scroll_update(self, *event):
         # self.line_number_widget.update()
@@ -51,11 +51,8 @@ class TextEditor:
     def window_resize(self, event=None):
         self.line_number_widget.update()
 
-    # FIXME: Don't work!
     def mouse_wheel(self, event=None):
         scroll_up = 4
         scroll_down = 5
         if event.num in (scroll_up, scroll_down):
             self.line_number_widget.line_widget.yview_moveto(self.text_widget.yview()[0])
-            print('txt: ' + str(self.text_widget.yview()))
-            print('ln:  ' + str(self.line_number_widget.line_widget.yview()))
