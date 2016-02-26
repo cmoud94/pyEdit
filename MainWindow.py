@@ -6,7 +6,6 @@ from TextEditor import *
 
 class PyEdit:
     def __init__(self, root):
-        # Obsahuje instance tridy Editor, ktera obsahuje cestu k souboru, samotny nazev souboru, obsah souboru
         self.editors = []
 
         # Style init
@@ -49,8 +48,6 @@ class PyEdit:
         self.root.bind_all('<Control-s>', self.save_file)
         self.root.bind_all('<Control-w>', self.close_tab)
         self.root.bind_all('<Control-q>', self.window_close)
-
-        self.root.bind('<Destroy>', self.on_destroy)
 
         # Debug shortcuts
         self.root.bind_all('<Control-d>', self.debug_file)
@@ -186,19 +183,18 @@ class PyEdit:
 
     def close_tab(self, event=None):
         selected_tab = self.notebook.index(self.notebook.select())
-        # TODO: Only for debug
-        print('Closing tab \'' + self.editors[selected_tab].file_name + '\'')
         if self.editors[selected_tab].text_widget.edit_modified():
             response = messagebox.askquestion('File edited',
-                                              'Close file without saving?',
+                                              'Save file before closing?',
                                               icon='question',
                                               type='yesnocancel',
                                               default='cancel',
                                               parent=self.root)
-            if response == 'no':
+            if response == 'yes':
                 self.save_file()
             elif response == 'cancel':
                 return
+        print('Closing tab \'' + self.editors[selected_tab].file_name + '\'')
         self.editors.remove(self.editors[selected_tab])
         self.notebook.forget(selected_tab)
 
@@ -242,13 +238,6 @@ class PyEdit:
 
     def window_close(self, event=None):
         self.root.destroy()
-
-    def on_destroy(self, event=None):
-        # if self.editors is not None and len(self.editors) > 0:
-        #     for x in self.editors:
-        #         self.notebook.focus_set()
-        #         self.close_tab()
-        pass
 
     def debug_file(self, event=None):
         selected_tab = self.notebook.index(self.notebook.select())
