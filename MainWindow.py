@@ -49,6 +49,8 @@ class PyEdit:
         self.root.bind_all('<Control-w>', self.close_tab)
         self.root.bind_all('<Control-q>', self.window_close)
 
+        self.root.wm_protocol('WM_DELETE_WINDOW', self.window_close)
+
         # Debug shortcuts
         self.root.bind_all('<Control-d>', self.debug_file)
 
@@ -253,13 +255,18 @@ class PyEdit:
             self.notebook.tab(selected_tab, text=self.editors[selected_tab].file_name)
 
     def window_close(self, event=None):
+        if not self.notebook_no_tabs('Nothing to close, destroying immediately!', 'message'):
+            for index in range(len(self.editors) - 1, -1, -1):
+                print('Index: ' + str(index))
+                self.notebook.select(index)
+                self.close_tab()
         self.root.destroy()
 
-    def notebook_no_tabs(self, message, type='word'):
+    def notebook_no_tabs(self, message, message_type='word'):
         if self.notebook.tabs() == ():
-            if type == 'word':
+            if message_type == 'word':
                 print('There\'s nothing to ' + message + ', open some file first!')
-            else:
+            elif message_type == 'message':
                 print(message)
             return True
         return False
