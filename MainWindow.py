@@ -67,10 +67,10 @@ class PyEdit:
 
         menu_file.add_command(label='New File', accelerator='Ctrl+N', command=self.new_tab)
         menu_file.add_command(label='Open', accelerator='Ctrl+O', command=self.open_file)
-        menu_file.add_command(label='Save', accelerator='Ctrl+S')
+        menu_file.add_command(label='Save', accelerator='Ctrl+S', command=self.save_file)
         menu_file.add_command(label='Save as...', accelerator='Ctrl+Shift+S')
         menu_file.add_separator()
-        menu_file.add_command(label='Exit', accelerator='Ctrl+Q')
+        menu_file.add_command(label='Exit', accelerator='Ctrl+Q', command=self.window_close)
 
         menu_bar.add_cascade(menu=menu_file, label='File')
 
@@ -101,7 +101,8 @@ class PyEdit:
         button_save = Button(frame_toolbar,
                              image=self.img_save,
                              relief='flat',
-                             activebackground='LightBlue3')
+                             activebackground='LightBlue3',
+                             command=self.save_file)
         button_save.grid(column=2, row=0)
 
         button_search = Button(frame_toolbar,
@@ -178,10 +179,13 @@ class PyEdit:
 
         return status_bar
 
-    def new_tab(self, event=None, file_path='', file_name='Document', content=''):
-        self.editors.append(TextEditor(self, file_path, file_name, content))
+    def new_tab(self, event=None, file_path='', content=''):
+        self.editors.append(TextEditor(self, file_path, content))
 
     def close_tab(self, event=None):
+        if self.notebook_no_tabs('close'):
+            return
+
         selected_tab = self.notebook.index(self.notebook.select())
         if self.editors[selected_tab].text_widget.edit_modified():
             response = messagebox.askquestion('File edited',
@@ -194,44 +198,55 @@ class PyEdit:
                 self.save_file()
             elif response == 'cancel':
                 return
+
         print('Closing tab \'' + self.editors[selected_tab].file_name + '\'')
+
+        for bind in self.editors[selected_tab].text_widget.bind():
+            self.editors[selected_tab].text_widget.unbind(bind)
+
         self.editors.remove(self.editors[selected_tab])
         self.notebook.forget(selected_tab)
 
-    def get_file_name(self, file_path):
-        index = file_path.rfind('/')
-        file_name = file_path[index + 1:]
-        return file_name
-
     def open_file(self, event=None):
         file_path = filedialog.askopenfilename()
-        file_name = self.get_file_name(file_path)
 
-        file = open(file_path, 'r')
-        file.seek(0, 2)
-        size = file.tell()
-        file.seek(0, 0)
+        try:
+            file = open(file_path, 'r')
+            file.seek(0, 2)
+            size = file.tell()
+            file.seek(0, 0)
 
-        content = file.read(size)
+            content = file.read(size)
 
-        self.new_tab(file_path=file_path, file_name=file_name, content=content)
+            self.new_tab(file_path=file_path, content=content)
 
-        file.close()
+            file.close()
+        except IOError:
+            print('File not found or \'Cancel\' pressed!')
 
     def save_file(self, event=None):
+        if self.notebook_no_tabs('save'):
+            return
+
         selected_tab = self.notebook.index(self.notebook.select())
+        if not self.editors[selected_tab].text_widget.edit_modified():
+            print('File already saved...')
+            return
+
         file_path = self.editors[selected_tab].file_path
         if file_path == '':
             file_path = filedialog.asksaveasfilename()
             self.editors[selected_tab].file_path = file_path
-            self.editors[selected_tab].file_name = self.get_file_name(file_path)
-        save_file = open(file_path, 'w')
+            self.editors[selected_tab].file_name = self.editors[selected_tab].update_file_name(file_path)
+
         try:
+            save_file = open(file_path, 'w')
             save_file.write(self.editors[selected_tab].text_widget.get('1.0', 'end'))
-            print('File \'' + self.editors[selected_tab].file_name + '\' has been saved!')
+            save_file.close()
+            print('File saved successfully!')
         except IOError:
             print('IO error! (save_file)')
-        save_file.close()
+
         self.editors[selected_tab].text_widget.edit_modified(False)
         if not self.editors[selected_tab].text_widget.edit_modified():
             self.notebook.tab(selected_tab, text=self.editors[selected_tab].file_name)
@@ -239,7 +254,19 @@ class PyEdit:
     def window_close(self, event=None):
         self.root.destroy()
 
+    def notebook_no_tabs(self, message, type='word'):
+        if self.notebook.tabs() == ():
+            if type == 'word':
+                print('There\'s nothing to ' + message + ', open some file first!')
+            else:
+                print(message)
+            return True
+        return False
+
     def debug_file(self, event=None):
+        if self.notebook_no_tabs('debug'):
+            return
+
         selected_tab = self.notebook.index(self.notebook.select())
         print('File name: ' + self.editors[selected_tab].file_name)
         print('File path: ' + self.editors[selected_tab].file_path)

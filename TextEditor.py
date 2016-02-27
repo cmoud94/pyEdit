@@ -2,10 +2,15 @@ from LineNumbers import *
 
 
 class TextEditor:
-    def __init__(self, parent, file_path='', file_name='Document', content=''):
+    def __init__(self, parent, file_path='', content=''):
         self.parent = parent
         self.file_path = file_path
-        self.file_name = file_name
+
+        if self.file_path != '':
+            index = file_path.rfind('/')
+            self.file_name = self.file_path[index + 1:]
+        else:
+            self.file_name = 'Document'
 
         self.frame = Frame(self.parent.notebook)
         self.frame.grid(column=0, row=0, sticky='nsew')
@@ -30,6 +35,11 @@ class TextEditor:
 
         self.text_widget.focus_set()
 
+        # Banned keys for <Key> event
+        self.banned_event_keys = ['Control_L', 'Control_R',
+                                  'Shift_L', 'Shift_R',
+                                  'Alt_L', 'Alt_R']
+
         # Shortcuts init
         self.text_widget.bind('<Key>', self.key_press)
         self.text_widget.bind('<Configure>', self.window_resize)
@@ -45,6 +55,9 @@ class TextEditor:
             self.line_number_widget.line_widget.yview_scroll(event[1], event[2])
 
     def key_press(self, event=None):
+        if event.keysym in self.banned_event_keys:
+            print('Banned action: ' + str(event.keysym))
+            return
         self.line_number_widget.update()
         if self.text_widget.edit_modified():
             selected_tab = self.parent.notebook.index(self.parent.notebook.select())
@@ -58,3 +71,9 @@ class TextEditor:
         scroll_down = 5
         if event.num in (scroll_up, scroll_down):
             self.line_number_widget.line_widget.yview_moveto(self.text_widget.yview()[0])
+
+    def update_file_name(self, file_path):
+        self.file_path = file_path
+        index = file_path.rfind('/')
+        self.file_name = file_path[index + 1:]
+        print('File name updated to \'' + self.file_name + '\'')

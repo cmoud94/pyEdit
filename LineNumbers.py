@@ -21,24 +21,29 @@ class LineNumbers:
         self.text_widget.update_idletasks()
         self.line_num = ''
         num_lines = self.text_widget.get('1.0', 'end').count('\n')
+
         for i in range(1, num_lines + 1):
             if len(str(i)) > self.line_widget['width']:
                 self.line_widget.config(width=len(str(i)))
+
             if i == num_lines:
                 self.line_num += str(i)
             else:
                 self.line_num += str(i) + '\n'
+
             fci = self.text_widget.index('%i.0' % i)
             lci = self.text_widget.index('%i.end' % i)
             self.text_widget.see(lci)
             first_char_bbox = self.text_widget.bbox(fci)
             last_char_bbox = self.text_widget.bbox(lci)
+
             if first_char_bbox is not None and last_char_bbox is not None:
                 first_char_bbox = list(first_char_bbox)
                 last_char_bbox = list(last_char_bbox)
                 while first_char_bbox[1] != last_char_bbox[1]:
                     first_char_bbox[1] += first_char_bbox[3]
                     self.line_num += '\n'
+
         self.line_widget.config(state='normal')
         self.line_widget.delete('1.0', 'end')
         self.line_widget.insert('1.0', self.line_num)
