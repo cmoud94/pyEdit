@@ -181,12 +181,13 @@ class PyEdit:
 
     def new_tab(self, event=None, file_path='', content=''):
         self.editors.append(TextEditor(self, file_path, content))
+        self.editors[-1].highlight_current_line()
 
     def close_tab(self, event=None):
         if self.notebook_no_tabs('close'):
             return
 
-        selected_tab = self.notebook.index(self.notebook.select())
+        selected_tab = self.get_selected_tab()
         if self.editors[selected_tab].text_widget.edit_modified():
             response = messagebox.askquestion('File edited',
                                               'Save file before closing?',
@@ -228,7 +229,7 @@ class PyEdit:
         if self.notebook_no_tabs('save'):
             return
 
-        selected_tab = self.notebook.index(self.notebook.select())
+        selected_tab = self.get_selected_tab()
         if not self.editors[selected_tab].text_widget.edit_modified():
             print('File already saved...')
             return
@@ -267,11 +268,16 @@ class PyEdit:
         if self.notebook_no_tabs('debug'):
             return
 
-        selected_tab = self.notebook.index(self.notebook.select())
+        selected_tab = self.get_selected_tab()
         print('File name: ' + self.editors[selected_tab].file_name)
         print('File path: ' + self.editors[selected_tab].file_path)
         print('File modified (from last save): ' + str(self.editors[selected_tab].text_widget.edit_modified()))
         print('Lines: ' + str(self.editors[selected_tab].text_widget.get('1.0', 'end').count('\n')))
+
+    def get_selected_tab(self, event=None):
+        if self.notebook_no_tabs('work with'):
+            return None
+        return self.notebook.index(self.notebook.select())
 
 
 tk = Tk()
