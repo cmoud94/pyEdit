@@ -1,5 +1,5 @@
 from tkinter import filedialog, messagebox
-from tkinter.ttk import Notebook, Style
+from tkinter.ttk import Notebook, Style, Separator
 
 from TextEditor import *
 
@@ -27,6 +27,11 @@ class PyEdit:
         self.img_new_file = PhotoImage(file='icons/24x24/document-new-8.png')
         self.img_open = PhotoImage(file='icons/24x24/document-open-7.png')
         self.img_save = PhotoImage(file='icons/24x24/document-save-2.png')
+        self.img_undo = PhotoImage(file='icons/24x24/edit-undo-5.png')
+        self.img_redo = PhotoImage(file='icons/24x24/edit-redo-5.png')
+        self.img_cut = PhotoImage(file='icons/24x24/edit-cut.png')
+        self.img_copy = PhotoImage(file='icons/24x24/edit-copy.png')
+        self.img_paste = PhotoImage(file='icons/24x24/edit-paste-2.png')
         self.img_search = PhotoImage(file='icons/24x24/edit-find-5.png')
 
         self.frame_toolbar = self.toolbar_init()
@@ -40,7 +45,7 @@ class PyEdit:
         self.notebook = self.notebook_init()
 
         # Status bar init
-        self.status_bar = self.status_bar_init()
+        # self.status_bar = self.status_bar_init()
 
         # Shortcuts init
         self.root.bind_all('<Control-n>', self.new_tab)
@@ -77,37 +82,115 @@ class PyEdit:
         menu_bar.add_cascade(menu=menu_file, label='File')
 
         # Edit menu
-        # menu_edit = Menu(menu_bar)
+        menu_edit = Menu(menu_bar)
+
+        menu_edit.add_command(label='Undo', accelerator='Ctrl+Z', command='')
+        menu_edit.add_command(label='Redo', accelerator='Ctrl+Shift+Z', command='')
+        menu_edit.add_separator()
+        menu_edit.add_command(label='Cut', accelerator='Ctrl+X', command='')
+        menu_edit.add_command(label='Copy', accelerator='Ctrl+C', command='')
+        menu_edit.add_command(label='Paste', accelerator='Ctrl+V', command='')
+        menu_edit.add_separator()
+        menu_edit.add_command(label='Preferences', accelerator='Ctrl+.', command='')
+
+        menu_bar.add_cascade(menu=menu_edit, label='Edit')
+
+        # Search/Replace menu
+        menu_search = Menu(menu_bar)
+
+        menu_search.add_command(label='Search', accelerator='Ctrl+F', command='')
+        menu_search.add_command(label='Replace', accelerator='Ctrl+R', command='')
+
+        menu_bar.add_cascade(menu=menu_search, label='Search')
+
+        # Help menu
+        menu_help = Menu(menu_bar)
+
+        menu_help.add_command(label='Help', command='')
+        menu_help.add_command(label='About', command='')
+
+        menu_bar.add_cascade(menu=menu_help, label='Help')
 
         return menu_bar
 
     def toolbar_init(self):
         frame_toolbar = Frame(self.root)
-        frame_toolbar.grid(column=0, row=0, sticky='nw')
+        frame_toolbar.grid(column=0, row=0, sticky='nsew')
 
-        # Toolbar buttons
+        # New file button
         button_new_file = Button(frame_toolbar,
                                  image=self.img_new_file,
                                  relief='flat',
                                  command=self.new_tab)
-        button_new_file.grid(column=0, row=0)
+        button_new_file.grid(column=0, row=0, sticky='nsew')
 
+        # Open file button
         button_open = Button(frame_toolbar,
                              image=self.img_open,
                              relief='flat',
                              command=self.open_file)
-        button_open.grid(column=1, row=0)
+        button_open.grid(column=1, row=0, sticky='nsew')
 
+        # Save file button
         button_save = Button(frame_toolbar,
                              image=self.img_save,
                              relief='flat',
                              command=self.save_file)
-        button_save.grid(column=2, row=0)
+        button_save.grid(column=2, row=0, sticky='nsew')
 
+        # Separator
+        separator_1 = Separator(frame_toolbar, orient='vertical')
+        separator_1.grid(column=3, row=0, sticky='nsew')
+
+        # Undo button
+        button_undo = Button(frame_toolbar,
+                             image=self.img_undo,
+                             relief='flat',
+                             command='')
+        button_undo.grid(column=4, row=0, sticky='nsew')
+
+        # Redo button
+        button_redo = Button(frame_toolbar,
+                             image=self.img_redo,
+                             relief='flat',
+                             command='')
+        button_redo.grid(column=5, row=0, sticky='nsew')
+
+        # Separator
+        separator_2 = Separator(frame_toolbar, orient='vertical')
+        separator_2.grid(column=6, row=0, sticky='nsew')
+
+        # Cut button
+        button_cut = Button(frame_toolbar,
+                            image=self.img_cut,
+                            relief='flat',
+                            command='')
+        button_cut.grid(column=7, row=0, sticky='nsew')
+
+        # Copy button
+        button_copy = Button(frame_toolbar,
+                             image=self.img_copy,
+                             relief='flat',
+                             command='')
+        button_copy.grid(column=8, row=0, sticky='nsew')
+
+        # Paste button
+        button_paste = Button(frame_toolbar,
+                              image=self.img_paste,
+                              relief='flat',
+                              command='')
+        button_paste.grid(column=9, row=0, sticky='nsew')
+
+        # Separator
+        separator_3 = Separator(frame_toolbar, orient='vertical')
+        separator_3.grid(column=10, row=0, sticky='nsew')
+
+        # Search button
         button_search = Button(frame_toolbar,
                                image=self.img_search,
-                               relief='flat')
-        button_search.grid(column=3, row=0)
+                               relief='flat',
+                               command='')
+        button_search.grid(column=11, row=0, sticky='nsew')
 
         return frame_toolbar
 
@@ -143,6 +226,9 @@ class PyEdit:
         return tabs
 
     def tab_btn_press(self, event=None):
+        if self.notebook_no_tabs():
+            return
+
         if event is not None:
             x, y, widget = event.x, event.y, event.widget
             elem = widget.identify(x, y)
@@ -153,6 +239,9 @@ class PyEdit:
                 widget.pressed_index = index
 
     def tab_btn_release(self, event=None):
+        if self.notebook_no_tabs():
+            return
+
         x, y, widget = event.x, event.y, event.widget
 
         if not widget.instate(['pressed']):
@@ -259,14 +348,21 @@ class PyEdit:
                 self.close_tab()
         self.root.destroy()
 
-    def notebook_no_tabs(self, message, message_type='word'):
+    def notebook_no_tabs(self, message='', message_type='word'):
         if self.notebook.tabs() == ():
             if message_type == 'word':
+                if message == '':
+                    return True
                 print('There\'s nothing to ' + message + ', open some file first!')
             elif message_type == 'message':
                 print(message)
             return True
         return False
+
+    def get_selected_tab_index(self, event=None):
+        if self.notebook_no_tabs('work with'):
+            return None
+        return self.notebook.index(self.notebook.select())
 
     def debug_file(self, event=None):
         if self.notebook_no_tabs('debug'):
@@ -277,11 +373,6 @@ class PyEdit:
         print('File path: ' + self.editors[selected_tab].file_path)
         print('File modified (from last save): ' + str(self.editors[selected_tab].text_widget.edit_modified()))
         print('Lines: ' + str(self.editors[selected_tab].text_widget.get('1.0', 'end').count('\n')))
-
-    def get_selected_tab_index(self, event=None):
-        if self.notebook_no_tabs('work with'):
-            return None
-        return self.notebook.index(self.notebook.select())
 
 
 tk = Tk()

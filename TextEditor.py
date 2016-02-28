@@ -50,6 +50,8 @@ class TextEditor:
         self.text_widget.bind('<ButtonRelease>', self.mouse)
         self.text_widget.bind('<Control-v>', self.line_number_widget.update)
 
+        self.text_widget.unbind_class('Text', '<Control-o>')
+
     def scroll_update(self, *event):
         # self.line_number_widget.update()
         if 'moveto' in event[0]:
