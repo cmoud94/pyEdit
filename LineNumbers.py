@@ -16,7 +16,7 @@ class LineNumbers:
         self.line_widget.grid(column=0, row=0, sticky='ns')
         self.line_num = ''
 
-    def update(self):
+    def update(self, event=None):
         self.line_widget.update_idletasks()
         self.text_widget.update_idletasks()
         self.line_num = ''

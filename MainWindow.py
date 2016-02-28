@@ -10,7 +10,7 @@ class PyEdit:
 
         # Style init
         self.style = Style()
-        # self.style.theme_use('clam')
+        self.style.theme_use('clam')
 
         # Window init
         self.root = root
@@ -59,16 +59,16 @@ class PyEdit:
     def menu_init(self):
         # Main menu_bar
         menu_bar = Menu(self.root)
-        menu_bar.config(activebackground='LightBlue3', relief='flat')
+        menu_bar.config(relief='flat')
 
         self.root.configure(menu=menu_bar)
 
         # File menu
         menu_file = Menu(menu_bar)
-        menu_file.config(activebackground='LightBlue3')
 
         menu_file.add_command(label='New File', accelerator='Ctrl+N', command=self.new_tab)
         menu_file.add_command(label='Open', accelerator='Ctrl+O', command=self.open_file)
+        menu_file.add_separator()
         menu_file.add_command(label='Save', accelerator='Ctrl+S', command=self.save_file)
         menu_file.add_command(label='Save as...', accelerator='Ctrl+Shift+S')
         menu_file.add_separator()
@@ -89,28 +89,24 @@ class PyEdit:
         button_new_file = Button(frame_toolbar,
                                  image=self.img_new_file,
                                  relief='flat',
-                                 activebackground='LightBlue3',
                                  command=self.new_tab)
         button_new_file.grid(column=0, row=0)
 
         button_open = Button(frame_toolbar,
                              image=self.img_open,
                              relief='flat',
-                             activebackground='LightBlue3',
                              command=self.open_file)
         button_open.grid(column=1, row=0)
 
         button_save = Button(frame_toolbar,
                              image=self.img_save,
                              relief='flat',
-                             activebackground='LightBlue3',
                              command=self.save_file)
         button_save.grid(column=2, row=0)
 
         button_search = Button(frame_toolbar,
                                image=self.img_search,
-                               relief='flat',
-                               activebackground='LightBlue3')
+                               relief='flat')
         button_search.grid(column=3, row=0)
 
         return frame_toolbar
@@ -118,22 +114,23 @@ class PyEdit:
     def notebook_init(self):
         self.style.element_create('close', 'image', 'img_close',
                                   ('active', 'pressed', '!disabled', 'img_close_pressed'),
-                                  ('active', '!disabled', 'img_close_mouse_over'), sticky='nsew')
+                                  ('active', '!disabled', 'img_close_mouse_over'))
 
-        self.style.layout('NotebookBtn', [('NotebookBtn.client', {'sticky': 'nsew'})])
+        self.style.layout('NotebookBtn', [('Notebook.client', {'sticky': 'nsew'})])
+
         self.style.layout('NotebookBtn.Tab', [
-            ('NotebookBtn.tab', {'sticky': 'nsew', 'children':
-                [('NotebookBtn.padding', {'side': 'top', 'sticky': 'nsew', 'children':
-                    [('NotebookBtn.focus', {'side': 'top', 'sticky': 'nsew', 'children':
-                        [('NotebookBtn.label', {'side': 'left', 'sticky': 'nsew'}),
-                         ('NotebookBtn.close', {'side': 'right', 'sticky': 'nsew'})]
-                                            })]
-                                          })]
-                                 })
+            ('Notebook.tab', {'sticky': 'nsew', 'children': [
+                ('Notebook.padding', {'side': 'top', 'sticky': 'nsew', 'children': [
+                    ('Notebook.focus', {'side': 'top', 'sticky': 'nsew', 'children': [
+                        ('Notebook.label', {'side': 'left', 'sticky': 'nsew'}),
+                        ('Notebook.close', {'side': 'right', 'sticky': 'nsew'})
+                    ]})
+                ]})
+            ]})
         ])
 
-        self.style.configure('NotebookBtn.Tab', padding=3, image='tab_doc')
-        self.style.map('NotebookBtn.Tab', background=[('selected', 'white')])
+        self.style.configure('NotebookBtn.Tab', padding=2, image='tab_doc')
+        self.style.map('NotebookBtn.Tab', background=[('selected', '#eeeeee')])
 
         self.root.bind_class('TNotebook', '<ButtonPress-1>', self.tab_btn_press, True)
         self.root.bind_class('TNotebook', '<ButtonRelease-1>', self.tab_btn_release)
@@ -189,7 +186,7 @@ class PyEdit:
         if self.notebook_no_tabs('close'):
             return
 
-        selected_tab = self.get_selected_tab()
+        selected_tab = self.get_selected_tab_index()
         if self.editors[selected_tab].text_widget.edit_modified():
             response = messagebox.askquestion('File edited',
                                               'Save file before closing?',
@@ -231,7 +228,7 @@ class PyEdit:
         if self.notebook_no_tabs('save'):
             return
 
-        selected_tab = self.get_selected_tab()
+        selected_tab = self.get_selected_tab_index()
         if not self.editors[selected_tab].text_widget.edit_modified():
             print('File already saved...')
             return
@@ -275,13 +272,13 @@ class PyEdit:
         if self.notebook_no_tabs('debug'):
             return
 
-        selected_tab = self.get_selected_tab()
+        selected_tab = self.get_selected_tab_index()
         print('File name: ' + self.editors[selected_tab].file_name)
         print('File path: ' + self.editors[selected_tab].file_path)
         print('File modified (from last save): ' + str(self.editors[selected_tab].text_widget.edit_modified()))
         print('Lines: ' + str(self.editors[selected_tab].text_widget.get('1.0', 'end').count('\n')))
 
-    def get_selected_tab(self, event=None):
+    def get_selected_tab_index(self, event=None):
         if self.notebook_no_tabs('work with'):
             return None
         return self.notebook.index(self.notebook.select())

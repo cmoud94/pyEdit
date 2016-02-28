@@ -39,14 +39,14 @@ class TextEditor:
 
         self.text_widget.focus_set()
 
-        # Banned keys for <Key> event
+        # Banned keys for <KeyRelease> event
         self.banned_event_keys = ['Control_L', 'Control_R',
                                   'Shift_L', 'Shift_R',
                                   'Alt_L', 'Alt_R']
 
         # Shortcuts init
         self.text_widget.bind('<KeyRelease>', self.key_release)
-        self.text_widget.bind('<Configure>', self.window_resize)
+        self.text_widget.bind('<Configure>', self.line_number_widget.update)
         self.text_widget.bind('<ButtonRelease>', self.mouse)
         self.text_widget.bind('<Control-v>', self.line_number_widget.update)
 
@@ -61,16 +61,12 @@ class TextEditor:
 
     def key_release(self, event=None):
         if event.keysym in self.banned_event_keys:
-            print('Banned action: ' + str(event.keysym))
             return
         self.line_number_widget.update()
         self.highlight_current_line()
         if self.text_widget.edit_modified():
             selected_tab = self.parent.notebook.index(self.parent.notebook.select())
             self.parent.notebook.tab(selected_tab, text='* ' + self.file_name)
-
-    def window_resize(self, event=None):
-        self.line_number_widget.update()
 
     def mouse(self, event=None):
         left_btn = 1
