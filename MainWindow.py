@@ -2,11 +2,13 @@ from tkinter import filedialog, messagebox
 from tkinter.ttk import Notebook, Style, Separator
 
 from TextEditor import *
+from Tooltip import *
 
 
 class PyEdit:
     def __init__(self, root):
         self.editors = []
+        self.clipboards = []
 
         # Style init
         self.style = Style()
@@ -33,6 +35,7 @@ class PyEdit:
         self.img_copy = PhotoImage(file='icons/24x24/edit-copy.png')
         self.img_paste = PhotoImage(file='icons/24x24/edit-paste-2.png')
         self.img_search = PhotoImage(file='icons/24x24/edit-find-5.png')
+        self.img_replace = PhotoImage(file='icons/24x24/edit-find-and-replace-2.png')
 
         self.frame_toolbar = self.toolbar_init()
 
@@ -48,16 +51,7 @@ class PyEdit:
         # self.status_bar = self.status_bar_init()
 
         # Shortcuts init
-        self.root.bind_all('<Control-n>', self.new_tab)
-        self.root.bind_all('<Control-o>', self.open_file)
-        self.root.bind_all('<Control-s>', self.save_file)
-        self.root.bind_all('<Control-w>', self.close_tab)
-        self.root.bind_all('<Control-q>', self.window_close)
-
-        self.root.wm_protocol('WM_DELETE_WINDOW', self.window_close)
-
-        # Debug shortcuts
-        self.root.bind_all('<Control-d>', self.debug_file)
+        self.shortcuts_init()
 
         self.root.update()
 
@@ -87,9 +81,9 @@ class PyEdit:
         menu_edit.add_command(label='Undo', accelerator='Ctrl+Z', command=self.undo)
         menu_edit.add_command(label='Redo', accelerator='Ctrl+Shift+Z', command=self.redo)
         menu_edit.add_separator()
-        menu_edit.add_command(label='Cut', accelerator='Ctrl+X', command='')
-        menu_edit.add_command(label='Copy', accelerator='Ctrl+C', command='')
-        menu_edit.add_command(label='Paste', accelerator='Ctrl+V', command='')
+        menu_edit.add_command(label='Cut', accelerator='Ctrl+X', command=self.cut)
+        menu_edit.add_command(label='Copy', accelerator='Ctrl+C', command=self.copy)
+        menu_edit.add_command(label='Paste', accelerator='Ctrl+V', command=self.paste)
         menu_edit.add_separator()
         menu_edit.add_command(label='Preferences', accelerator='Ctrl+.', command='')
 
@@ -124,6 +118,8 @@ class PyEdit:
                                  command=self.new_tab)
         button_new_file.grid(column=0, row=0, sticky='nsew')
 
+        tooltip_new_file = Tooltip(button_new_file, 'Create new file')
+
         # Open file button
         button_open = Button(frame_toolbar,
                              image=self.img_open,
@@ -131,12 +127,16 @@ class PyEdit:
                              command=self.open_file)
         button_open.grid(column=1, row=0, sticky='nsew')
 
+        tooltip_open = Tooltip(button_open, 'Open file')
+
         # Save file button
         button_save = Button(frame_toolbar,
                              image=self.img_save,
                              relief='flat',
                              command=self.save_file)
         button_save.grid(column=2, row=0, sticky='nsew')
+
+        tooltip_save = Tooltip(button_save, 'Save file')
 
         # Separator
         separator_1 = Separator(frame_toolbar, orient='vertical')
@@ -149,12 +149,16 @@ class PyEdit:
                              command=self.undo)
         button_undo.grid(column=4, row=0, sticky='nsew')
 
+        tooltip_undo = Tooltip(button_undo, 'Undo')
+
         # Redo button
         button_redo = Button(frame_toolbar,
                              image=self.img_redo,
                              relief='flat',
                              command=self.redo)
         button_redo.grid(column=5, row=0, sticky='nsew')
+
+        tooltip_redo = Tooltip(button_redo, 'Redo')
 
         # Separator
         separator_2 = Separator(frame_toolbar, orient='vertical')
@@ -164,22 +168,28 @@ class PyEdit:
         button_cut = Button(frame_toolbar,
                             image=self.img_cut,
                             relief='flat',
-                            command='')
+                            command=self.cut)
         button_cut.grid(column=7, row=0, sticky='nsew')
+
+        tooltip_cut = Tooltip(button_cut, 'Cut')
 
         # Copy button
         button_copy = Button(frame_toolbar,
                              image=self.img_copy,
                              relief='flat',
-                             command='')
+                             command=self.copy)
         button_copy.grid(column=8, row=0, sticky='nsew')
+
+        tooltip_copy = Tooltip(button_copy, 'Copy')
 
         # Paste button
         button_paste = Button(frame_toolbar,
                               image=self.img_paste,
                               relief='flat',
-                              command='')
+                              command=self.paste)
         button_paste.grid(column=9, row=0, sticky='nsew')
+
+        tooltip_paste = Tooltip(button_paste, 'Paste')
 
         # Separator
         separator_3 = Separator(frame_toolbar, orient='vertical')
@@ -191,6 +201,17 @@ class PyEdit:
                                relief='flat',
                                command='')
         button_search.grid(column=11, row=0, sticky='nsew')
+
+        tooltip_search = Tooltip(button_search, 'Search')
+
+        # Replace button
+        button_replace = Button(frame_toolbar,
+                                image=self.img_replace,
+                                relief='flat',
+                                command='')
+        button_replace.grid(column=12, row=0, sticky='nsew')
+
+        tooltip_replace = Tooltip(button_replace, 'Replace')
 
         return frame_toolbar
 
@@ -262,13 +283,41 @@ class PyEdit:
         status_bar = Frame(self.root)
         status_bar.grid(column=0, row=2, sticky='nsew')
 
-        label = Label(status_bar, text='Status bar!', relief='sunken', bg='LightBlue3')
+        label = Label(status_bar, text='Status bar!', relief='sunken', bg='LightBlue1')
         label.grid(column=0, row=0)
 
         return status_bar
 
+    def shortcuts_init(self):
+        # File shortcuts
+        self.root.bind_all('<Control-n>', self.new_tab)
+        self.root.bind_all('<Control-o>', self.open_file)
+        self.root.bind_all('<Control-s>', self.save_file)
+        self.root.bind_all('<Control-S>', '')
+        self.root.bind_all('<Control-w>', self.close_tab)
+
+        # Edit shortcuts
+        self.root.bind_all('<Control-z>', self.undo)
+        self.root.bind_all('<Control-Z>', self.redo)
+        self.root.bind_all('<Control-x>', self.cut)
+        self.root.bind_all('<Control-c>', self.copy)
+        self.root.bind_all('<Control-v>', self.paste)
+        self.root.bind_all('<Control-.>', '')
+
+        # Search shortcuts
+        self.root.bind_all('<Control-F>', '')
+        self.root.bind_all('<Control-R>', '')
+
+        # Window shortcuts
+        self.root.bind_all('<Control-q>', self.window_close)
+        self.root.wm_protocol('WM_DELETE_WINDOW', self.window_close)
+
+        # Debug shortcuts
+        self.root.bind_all('<Control-d>', self.debug_file)
+
     def new_tab(self, event=None, file_path='', content=''):
         self.editors.append(TextEditor(self, file_path, content))
+        self.clipboards.append('')
         self.editors[-1].highlight_current_line()
 
     def close_tab(self, event=None):
@@ -294,6 +343,7 @@ class PyEdit:
             self.editors[selected_tab].text_widget.unbind(bind)
 
         self.editors.remove(self.editors[selected_tab])
+        self.clipboards.remove(self.clipboards[selected_tab])
         self.notebook.forget(selected_tab)
 
     def open_file(self, event=None):
@@ -345,14 +395,73 @@ class PyEdit:
             return
 
         selected_tab = self.get_selected_tab_index()
-        self.editors[selected_tab].text_widget.edit_undo()
+        try:
+            self.editors[selected_tab].text_widget.edit_undo()
+            self.editors[selected_tab].highlight_current_line()
+            if not self.editors[selected_tab].text_widget.edit_modified():
+                self.notebook.tab(selected_tab, text=self.editors[selected_tab].file_name)
+            else:
+                self.notebook.tab(selected_tab, text='*' + self.editors[selected_tab].file_name)
+        except TclError:
+            self.editors[selected_tab].text_widget.edit_redo()
+            self.editors[selected_tab].highlight_current_line()
+            print('undo error')
+            return
 
     def redo(self, event=None):
         if self.notebook_no_tabs('No tabs, no redo...', 'message'):
             return
 
         selected_tab = self.get_selected_tab_index()
-        self.editors[selected_tab].text_widget.edit_redo()
+        try:
+            self.editors[selected_tab].text_widget.edit_redo()
+            self.editors[selected_tab].highlight_current_line()
+            if not self.editors[selected_tab].text_widget.edit_modified():
+                self.notebook.tab(selected_tab, text=self.editors[selected_tab].file_name)
+            else:
+                self.notebook.tab(selected_tab, text='*' + self.editors[selected_tab].file_name)
+        except TclError:
+            print('redo error')
+            return
+
+    def cut(self, event=None):
+        if self.notebook_no_tabs('No tabs, nothing to cut...', 'message'):
+            return
+
+        try:
+            selected_tab = self.get_selected_tab_index()
+            self.clipboards[selected_tab] = self.editors[selected_tab].text_widget.get('sel.first', 'sel.last')
+            self.editors[selected_tab].text_widget.delete('sel.first', 'sel.last')
+            self.editors[selected_tab].highlight_current_line()
+            print('Cut: ' + self.clipboards[selected_tab])
+        except TclError:
+            print('cut error')
+            return
+
+    def copy(self, event=None):
+        if self.notebook_no_tabs('No tabs, nothing to copy...', 'message'):
+            return
+
+        try:
+            selected_tab = self.get_selected_tab_index()
+            self.clipboards[selected_tab] = self.editors[selected_tab].text_widget.get('sel.first', 'sel.last')
+            self.editors[selected_tab].highlight_current_line()
+            print('Copied: ' + self.clipboards[selected_tab])
+        except TclError:
+            print('copy error')
+            return
+
+    def paste(self, event=None):
+        if self.notebook_no_tabs('No tabs, nothing to paste...', 'message'):
+            return
+
+        selected_tab = self.get_selected_tab_index()
+        if self.clipboards[selected_tab] != '':
+            self.editors[selected_tab].text_widget.insert('insert', self.clipboards[selected_tab])
+            self.editors[selected_tab].highlight_current_line()
+            print(self.clipboards[selected_tab])
+        else:
+            print('paste error')
 
     def window_close(self, event=None):
         if not self.notebook_no_tabs('Nothing to close, destroying immediately!', 'message'):

@@ -21,7 +21,6 @@ class TextEditor:
                                 relief='flat',
                                 bd=0,
                                 selectbackground='LightBlue3',
-                                selectforeground='#333333',
                                 undo=True,
                                 maxundo=-1,
                                 autoseparator=True)
@@ -51,9 +50,16 @@ class TextEditor:
         self.text_widget.bind('<KeyRelease>', self.key_release)
         self.text_widget.bind('<Configure>', self.line_number_widget.update)
         self.text_widget.bind('<ButtonRelease>', self.mouse)
-        self.text_widget.bind('<Control-v>', self.line_number_widget.update)
 
+        # Unbinding
         self.text_widget.unbind_class('Text', '<Control-o>')
+        self.text_widget.unbind_class('Text', '<<Undo>>')
+        self.text_widget.unbind_class('Text', '<<Redo>>')
+        self.text_widget.unbind_class('Text', '<<Cut>>')
+        self.text_widget.unbind_class('Text', '<<Copy>>')
+        self.text_widget.unbind_class('Text', '<<Paste>>')
+
+        # print(self.text_widget.bind_class('Text'))
 
     def scroll_update(self, *event):
         # self.line_number_widget.update()
@@ -100,4 +106,14 @@ class TextEditor:
         end_index = str(int(current_line) + 1) + '.0'
         # print(str(current_pos) + ' | ' + str(current_line) + ' | ' + str(start_index) + ' | ' + str(end_index))
         self.text_widget.tag_add('current_line', start_index, end_index)
-        self.text_widget.tag_config('current_line', background='#eeeeee')
+        self.text_widget.tag_config('current_line', background='#e0e0e0')
+        self.highlight_selected_text()
+
+    def highlight_selected_text(self):
+        self.text_widget.tag_remove('selected_text', '1.0', 'end')
+        try:
+            self.text_widget.tag_add('selected_text', 'sel.first', 'sel.last')
+            self.text_widget.tag_config('selected_text', background='LightBlue3')
+        except TclError:
+            print('highlight_selected_text error')
+            return
