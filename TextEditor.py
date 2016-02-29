@@ -21,7 +21,10 @@ class TextEditor:
                                 relief='flat',
                                 bd=0,
                                 selectbackground='LightBlue3',
-                                selectforeground='#333333')
+                                selectforeground='#333333',
+                                undo=True,
+                                maxundo=-1,
+                                autoseparator=True)
         self.text_widget.grid(column=1, row=0, sticky='nsew')
         self.text_widget.insert('1.0', content)
         self.text_widget.edit_modified(False)

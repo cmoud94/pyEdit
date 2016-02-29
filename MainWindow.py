@@ -84,8 +84,8 @@ class PyEdit:
         # Edit menu
         menu_edit = Menu(menu_bar)
 
-        menu_edit.add_command(label='Undo', accelerator='Ctrl+Z', command='')
-        menu_edit.add_command(label='Redo', accelerator='Ctrl+Shift+Z', command='')
+        menu_edit.add_command(label='Undo', accelerator='Ctrl+Z', command=self.undo)
+        menu_edit.add_command(label='Redo', accelerator='Ctrl+Shift+Z', command=self.redo)
         menu_edit.add_separator()
         menu_edit.add_command(label='Cut', accelerator='Ctrl+X', command='')
         menu_edit.add_command(label='Copy', accelerator='Ctrl+C', command='')
@@ -146,14 +146,14 @@ class PyEdit:
         button_undo = Button(frame_toolbar,
                              image=self.img_undo,
                              relief='flat',
-                             command='')
+                             command=self.undo)
         button_undo.grid(column=4, row=0, sticky='nsew')
 
         # Redo button
         button_redo = Button(frame_toolbar,
                              image=self.img_redo,
                              relief='flat',
-                             command='')
+                             command=self.redo)
         button_redo.grid(column=5, row=0, sticky='nsew')
 
         # Separator
@@ -339,6 +339,20 @@ class PyEdit:
         self.editors[selected_tab].text_widget.edit_modified(False)
         if not self.editors[selected_tab].text_widget.edit_modified():
             self.notebook.tab(selected_tab, text=self.editors[selected_tab].file_name)
+
+    def undo(self, event=None):
+        if self.notebook_no_tabs('No tabs, no undo...', 'message'):
+            return
+
+        selected_tab = self.get_selected_tab_index()
+        self.editors[selected_tab].text_widget.edit_undo()
+
+    def redo(self, event=None):
+        if self.notebook_no_tabs('No tabs, no redo...', 'message'):
+            return
+
+        selected_tab = self.get_selected_tab_index()
+        self.editors[selected_tab].text_widget.edit_redo()
 
     def window_close(self, event=None):
         if not self.notebook_no_tabs('Nothing to close, destroying immediately!', 'message'):
