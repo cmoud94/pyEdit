@@ -115,5 +115,5 @@ class TextEditor:
             self.text_widget.tag_add('selected_text', 'sel.first', 'sel.last')
             self.text_widget.tag_config('selected_text', background='LightBlue3')
         except TclError:
-            print('highlight_selected_text error')
+            # print('highlight_selected_text error')
             return

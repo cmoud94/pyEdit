@@ -1,6 +1,7 @@
 from tkinter import filedialog, messagebox
-from tkinter.ttk import Notebook, Style, Separator
+from tkinter.ttk import Separator
 
+from Preferences import *
 from TextEditor import *
 from Tooltip import *
 
@@ -53,6 +54,9 @@ class PyEdit:
         # Shortcuts init
         self.shortcuts_init()
 
+        # Create empty document
+        self.new_tab()
+
         self.root.update()
 
     def menu_init(self):
@@ -85,14 +89,14 @@ class PyEdit:
         menu_edit.add_command(label='Copy', accelerator='Ctrl+C', command=self.copy)
         menu_edit.add_command(label='Paste', accelerator='Ctrl+V', command=self.paste)
         menu_edit.add_separator()
-        menu_edit.add_command(label='Preferences', accelerator='Ctrl+.', command='')
+        menu_edit.add_command(label='Preferences', accelerator='Ctrl+.', command=self.preferences)
 
         menu_bar.add_cascade(menu=menu_edit, label='Edit')
 
         # Search/Replace menu
         menu_search = Menu(menu_bar)
 
-        menu_search.add_command(label='Search', accelerator='Ctrl+F', command='')
+        menu_search.add_command(label='Find', accelerator='Ctrl+F', command='')
         menu_search.add_command(label='Replace', accelerator='Ctrl+R', command='')
 
         menu_bar.add_cascade(menu=menu_search, label='Search')
@@ -234,7 +238,7 @@ class PyEdit:
         ])
 
         self.style.configure('NotebookBtn.Tab', padding=2, image='tab_doc')
-        self.style.map('NotebookBtn.Tab', background=[('selected', '#eeeeee')])
+        self.style.map('NotebookBtn.Tab', background=[('selected', '#f0f0f0')])
 
         self.root.bind_class('TNotebook', '<ButtonPress-1>', self.tab_btn_press, True)
         self.root.bind_class('TNotebook', '<ButtonRelease-1>', self.tab_btn_release)
@@ -302,7 +306,7 @@ class PyEdit:
         self.root.bind_all('<Control-x>', self.cut)
         self.root.bind_all('<Control-c>', self.copy)
         self.root.bind_all('<Control-v>', self.paste)
-        self.root.bind_all('<Control-.>', '')
+        self.root.bind_all('<Control-period>', self.preferences)
 
         # Search shortcuts
         self.root.bind_all('<Control-F>', '')
@@ -459,14 +463,17 @@ class PyEdit:
         if self.clipboards[selected_tab] != '':
             self.editors[selected_tab].text_widget.insert('insert', self.clipboards[selected_tab])
             self.editors[selected_tab].highlight_current_line()
-            print(self.clipboards[selected_tab])
+            print('Pasted: ' + self.clipboards[selected_tab])
         else:
             print('paste error')
+
+    def preferences(self, event=None):
+        Preferences(self.root)
 
     def window_close(self, event=None):
         if not self.notebook_no_tabs('Nothing to close, destroying immediately!', 'message'):
             for index in range(len(self.editors) - 1, -1, -1):
-                print('Index: ' + str(index))
+                # print('Index: ' + str(index))
                 self.notebook.select(index)
                 self.close_tab()
         self.root.destroy()
