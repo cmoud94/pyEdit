@@ -160,9 +160,10 @@ class TextEditor:
             self.conf_font = font.Font(family='Helvetica', size=8, weight='normal')
 
         if self.conf_show_line_numbers:
-            self.line_number_widget = LineNumbers(self.frame, self.text_widget)
-            self.line_number_widget.update()
+            if self.line_number_widget is None:
+                self.line_number_widget = LineNumbers(self.frame, self.text_widget)
             self.text_widget.bind('<Configure>', self.line_number_widget.update)
+            self.line_number_widget.update()
             self.line_number_widget.line_widget.config(font=self.conf_font)
         else:
             if self.line_number_widget is not None:
@@ -175,3 +176,6 @@ class TextEditor:
             self.unhighlight_currnt_line()
 
         self.text_widget.config(wrap=self.conf_text_wrap_mode, font=self.conf_font)
+
+        if self.conf_text_wrap and self.conf_show_line_numbers:
+            self.line_number_widget.update()

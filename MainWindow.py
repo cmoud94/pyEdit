@@ -57,9 +57,6 @@ class PyEdit:
 
         print('Preferences: ' + str(self.config))
 
-        # Create empty document
-        self.new_tab()
-
     def menu_init(self):
         # Main menu_bar
         menu_bar = Menu(self.root)

@@ -52,7 +52,8 @@ class Preferences:
 
         self.chkbtn_text_wrap_enable = Checkbutton(self.lf_text_wrapping,
                                                    text='Enable text wrapping',
-                                                   variable=self.config[0])
+                                                   variable=self.config[0],
+                                                   command=self.update_wrap_chkbtns)
         self.chkbtn_text_wrap_enable.grid(column=0, row=0, sticky='nsw', padx=5, pady=5)
         self.chkbtn_text_wrap_enable.var = self.config[0]
 
@@ -154,6 +155,8 @@ class Preferences:
 
         self.font_btn_text.set(self.config[4].get() + ' | ' + str(self.config[5].get()))
 
+        self.update_wrap_chkbtns()
+
         return ret
 
     def config_read_startup(self):
@@ -185,3 +188,9 @@ class Preferences:
 
     def font_config(self, event=None):
         FontSelector(self)
+
+    def update_wrap_chkbtns(self, event=None):
+        if self.chkbtn_text_wrap_enable.var.get() == 0:
+            self.chkbtn_text_wrap_mode.config(state='disable')
+        else:
+            self.chkbtn_text_wrap_mode.config(state='normal')
