@@ -1,10 +1,20 @@
+from tkinter import font
+
 from LineNumbers import *
 
 
 class TextEditor:
-    def __init__(self, parent, file_path='', content=''):
+    def __init__(self, parent, file_path='', content='', config=None):
         self.parent = parent
         self.file_path = file_path
+
+        self.conf_text_wrap = None
+        self.conf_text_wrap_mode = None
+        self.conf_show_line_numbers = None
+        self.conf_highlight_current_line = None
+        self.conf_font = None
+
+        self.config_update(config)
 
         if self.file_path != '':
             index = file_path.rfind('/')
@@ -23,7 +33,9 @@ class TextEditor:
                                 selectbackground='LightBlue3',
                                 undo=True,
                                 maxundo=-1,
-                                autoseparator=True)
+                                autoseparator=True,
+                                font=self.conf_font,
+                                wrap=self.conf_text_wrap_mode)
         self.text_widget.grid(column=1, row=0, sticky='nsew')
         self.text_widget.insert('1.0', content)
         self.text_widget.edit_modified(False)
@@ -32,8 +44,9 @@ class TextEditor:
         self.scroll_bar.grid(column=2, row=0, sticky='ns')
         self.text_widget.config(yscrollcommand=self.scroll_bar.set)
 
-        self.line_number_widget = LineNumbers(self.frame, self.text_widget)
-        self.line_number_widget.update()
+        if self.conf_show_line_numbers:
+            self.line_number_widget = LineNumbers(self.frame, self.text_widget)
+            self.line_number_widget.update()
 
         self.parent.notebook.add(self.frame, text=self.file_name, compound='left')
         self.index = self.parent.notebook.index(self.parent.notebook.tabs()[-1])
@@ -48,7 +61,8 @@ class TextEditor:
 
         # Shortcuts init
         self.text_widget.bind('<KeyRelease>', self.key_release)
-        self.text_widget.bind('<Configure>', self.line_number_widget.update)
+        if self.conf_show_line_numbers:
+            self.text_widget.bind('<Configure>', self.line_number_widget.update)
         self.text_widget.bind('<ButtonRelease>', self.mouse)
 
         # Unbinding
@@ -65,16 +79,20 @@ class TextEditor:
         # self.line_number_widget.update()
         if 'moveto' in event[0]:
             self.text_widget.yview_moveto(event[1])
-            self.line_number_widget.line_widget.yview_moveto(event[1])
+            if self.conf_show_line_numbers:
+                self.line_number_widget.line_widget.yview_moveto(event[1])
         elif 'scroll' in event[0]:
             self.text_widget.yview_scroll(event[1], event[2])
-            self.line_number_widget.line_widget.yview_scroll(event[1], event[2])
+            if self.conf_show_line_numbers:
+                self.line_number_widget.line_widget.yview_scroll(event[1], event[2])
 
     def key_release(self, event=None):
         if event.keysym in self.banned_event_keys:
             return
-        self.line_number_widget.update()
-        self.highlight_current_line()
+        if self.conf_show_line_numbers:
+            self.line_number_widget.update()
+        if self.conf_highlight_current_line:
+            self.highlight_current_line()
         if self.text_widget.edit_modified():
             selected_tab = self.parent.notebook.index(self.parent.notebook.select())
             self.parent.notebook.tab(selected_tab, text='* ' + self.file_name)
@@ -86,10 +104,12 @@ class TextEditor:
         scroll_down = 5
 
         if event.num == left_btn:
-            self.highlight_current_line()
+            if self.conf_highlight_current_line:
+                self.highlight_current_line()
 
         if event.num in (scroll_up, scroll_down):
-            self.line_number_widget.line_widget.yview_moveto(self.text_widget.yview()[0])
+            if self.conf_show_line_numbers:
+                self.line_number_widget.line_widget.yview_moveto(self.text_widget.yview()[0])
 
     def update_file_name(self, file_path):
         self.file_path = file_path
@@ -117,3 +137,21 @@ class TextEditor:
         except TclError:
             # print('highlight_selected_text error')
             return
+
+    def config_update(self, config):
+        if config is not None:
+            self.conf_text_wrap = True if config[0] == 1 else False
+            if self.conf_text_wrap:
+                self.conf_text_wrap_mode = 'word' if config[1] == 1 else 'char'
+            else:
+                self.conf_text_wrap_mode = 'none'
+            self.conf_show_line_numbers = True if config[2] == 1 else False
+            self.conf_highlight_current_line = True if config[3] == 1 else False
+            self.conf_font = font.Font(family=config[4], size=config[5], weight=config[6])
+        else:
+            self.conf_text_wrap_mode = 'word'
+            self.conf_show_line_numbers = True
+            self.conf_highlight_current_line = True
+            self.conf_font = font.Font(family='Helvetica', size=8, weight='normal')
+
+

@@ -1,5 +1,5 @@
 from tkinter import filedialog, messagebox
-from tkinter.ttk import Separator
+from tkinter.ttk import Separator, Notebook
 
 from Preferences import *
 from TextEditor import *
@@ -10,6 +10,7 @@ class PyEdit:
     def __init__(self, root):
         self.editors = []
         self.clipboards = []
+        self.config = []
 
         # Style init
         self.style = Style()
@@ -53,6 +54,9 @@ class PyEdit:
 
         # Shortcuts init
         self.shortcuts_init()
+
+        # Read config
+        self.config = Preferences(self).config_read_startup()
 
         # Create empty document
         self.new_tab()
@@ -320,7 +324,7 @@ class PyEdit:
         self.root.bind_all('<Control-d>', self.debug_file)
 
     def new_tab(self, event=None, file_path='', content=''):
-        self.editors.append(TextEditor(self, file_path, content))
+        self.editors.append(TextEditor(self, file_path, content, self.config))
         self.clipboards.append('')
         self.editors[-1].highlight_current_line()
 
@@ -468,7 +472,11 @@ class PyEdit:
             print('paste error')
 
     def preferences(self, event=None):
-        Preferences(self.root)
+        Preferences(self)
+
+    def config_update(self):
+        for i in range(len(self.editors)):
+            self.editors[i].config_update()
 
     def window_close(self, event=None):
         if not self.notebook_no_tabs('Nothing to close, destroying immediately!', 'message'):
