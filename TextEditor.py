@@ -143,7 +143,7 @@ class TextEditor:
     def unhighlight_currnt_line(self):
         self.text_widget.tag_remove('current_line', '1.0', 'end')
 
-    def config_update(self, config=None):
+    def config_update(self, config):
         if config is not None:
             self.conf_text_wrap = True if config[0] == 1 else False
             if self.conf_text_wrap:
@@ -157,18 +157,19 @@ class TextEditor:
             self.conf_text_wrap_mode = 'word'
             self.conf_show_line_numbers = True
             self.conf_highlight_current_line = True
-            self.conf_font = font.Font(family='Helvetica', size=8, weight='normal')
+            self.conf_font = font.Font(family='Monospace', size=10, weight='normal')
 
         if self.conf_show_line_numbers:
             if self.line_number_widget is None:
                 self.line_number_widget = LineNumbers(self.frame, self.text_widget)
-            self.text_widget.bind('<Configure>', self.line_number_widget.update)
+                self.text_widget.bind('<Configure>', self.line_number_widget.update)
             self.line_number_widget.update()
             self.line_number_widget.line_widget.config(font=self.conf_font)
         else:
             if self.line_number_widget is not None:
                 self.line_number_widget.delete()
             self.line_number_widget = None
+            self.text_widget.unbind('<Configure>')
 
         if self.conf_highlight_current_line:
             self.highlight_current_line()
@@ -177,5 +178,5 @@ class TextEditor:
 
         self.text_widget.config(wrap=self.conf_text_wrap_mode, font=self.conf_font)
 
-        if self.conf_text_wrap and self.conf_show_line_numbers:
+        if self.conf_show_line_numbers:
             self.line_number_widget.update()
