@@ -1,6 +1,6 @@
-from tkinter import *
-from tkinter import font
 from tkinter.ttk import Style
+
+from FontSelector import *
 
 
 class Preferences:
@@ -9,7 +9,7 @@ class Preferences:
         self.config = []
         self.config_keys = ['text_wrap', 'text_wrap_whole_words', 'show_line_numbers', 'highlight_current_line',
                             'font_family', 'font_size', 'font_weight']
-        self.config_default_values = [1, 1, 1, 1, 'Monospace', 9, 'normal']
+        self.config_default_values = [1, 1, 1, 1, 'Monospace', 10, 'normal']
 
         # text_wrap
         self.config.append(IntVar())
@@ -41,13 +41,13 @@ class Preferences:
 
         self.root = Toplevel()
         self.root.title('pyEdit Preferences')
-        self.root.minsize(300, 300)
+        self.root.minsize(300, 0)
         self.root.resizable(False, False)
         self.root.option_add('*tearOff', FALSE)
         self.root.columnconfigure(0, weight=1)
 
         # Text wrapping
-        self.lf_text_wrapping = LabelFrame(self.root, text='Text wrapping', font=self.font)
+        self.lf_text_wrapping = LabelFrame(self.root, text='Text wrapping', font=self.font, relief='flat')
         self.lf_text_wrapping.grid(column=0, row=0, stick='nsew', padx=5, pady=5)
 
         self.chkbtn_text_wrap_enable = Checkbutton(self.lf_text_wrapping,
@@ -63,7 +63,7 @@ class Preferences:
         self.chkbtn_text_wrap_mode.var = self.config[1]
 
         # Line numbers
-        self.lf_line_numbers = LabelFrame(self.root, text='Line numbers', font=self.font)
+        self.lf_line_numbers = LabelFrame(self.root, text='Line numbers', font=self.font, relief='flat')
         self.lf_line_numbers.grid(column=0, row=1, sticky='nsew', padx=5, pady=5)
 
         self.chkbtn_line_numbers = Checkbutton(self.lf_line_numbers,
@@ -73,7 +73,7 @@ class Preferences:
         self.chkbtn_line_numbers.var = self.config[2]
 
         # Current line
-        self.lf_highlight_current_line = LabelFrame(self.root, text='Current line', font=self.font)
+        self.lf_highlight_current_line = LabelFrame(self.root, text='Current line', font=self.font, relief='flat')
         self.lf_highlight_current_line.grid(column=0, row=2, sticky='nsew', padx=5, pady=5)
 
         self.chkbtn_highlight_current_line = Checkbutton(self.lf_highlight_current_line,
@@ -83,13 +83,14 @@ class Preferences:
         self.chkbtn_highlight_current_line.var = self.config[3]
 
         # Font
-        self.lf_font = LabelFrame(self.root, text='Font settings', font=self.font)
+        self.lf_font = LabelFrame(self.root, text='Font settings', font=self.font, relief='flat')
         self.lf_font.grid(column=0, row=3, sticky='nsew', padx=5, pady=5)
+        self.lf_font.columnconfigure(0, weight=1)
 
         self.btn_font = Button(self.lf_font,
                                textvariable=self.font_btn_text,
-                               command='')
-        self.btn_font.grid(column=0, row=0, sticky='nsw', padx=5, pady=5)
+                               command=self.font_config)
+        self.btn_font.grid(column=0, row=0, sticky='nsew', padx=5, pady=5)
 
         # Buttons
         self.frame_buttons = Frame(self.root)
@@ -179,5 +180,8 @@ class Preferences:
         conf_file.close()
 
         self.parent.config = conf
-        self.parent.config_update()
         self.root.destroy()
+        self.parent.config_update()
+
+    def font_config(self, event=None):
+        FontSelector(self)

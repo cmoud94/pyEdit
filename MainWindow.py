@@ -49,19 +49,16 @@ class PyEdit:
 
         self.notebook = self.notebook_init()
 
-        # Status bar init
-        # self.status_bar = self.status_bar_init()
-
         # Shortcuts init
         self.shortcuts_init()
 
         # Read config
         self.config = Preferences(self).config_read_startup()
 
+        print('Preferences: ' + str(self.config))
+
         # Create empty document
         self.new_tab()
-
-        self.root.update()
 
     def menu_init(self):
         # Main menu_bar
@@ -77,7 +74,7 @@ class PyEdit:
         menu_file.add_command(label='Open', accelerator='Ctrl+O', command=self.open_file)
         menu_file.add_separator()
         menu_file.add_command(label='Save', accelerator='Ctrl+S', command=self.save_file)
-        menu_file.add_command(label='Save as...', accelerator='Ctrl+Shift+S')
+        menu_file.add_command(label='Save as...', accelerator='Ctrl+Shift+S', command='')
         menu_file.add_separator()
         menu_file.add_command(label='Exit', accelerator='Ctrl+Q', command=self.window_close)
 
@@ -287,15 +284,6 @@ class PyEdit:
         widget.state(['!pressed'])
         widget.pressed_index = None
 
-    def status_bar_init(self):
-        status_bar = Frame(self.root)
-        status_bar.grid(column=0, row=2, sticky='nsew')
-
-        label = Label(status_bar, text='Status bar!', relief='sunken', bg='LightBlue1')
-        label.grid(column=0, row=0)
-
-        return status_bar
-
     def shortcuts_init(self):
         # File shortcuts
         self.root.bind_all('<Control-n>', self.new_tab)
@@ -326,7 +314,7 @@ class PyEdit:
     def new_tab(self, event=None, file_path='', content=''):
         self.editors.append(TextEditor(self, file_path, content, self.config))
         self.clipboards.append('')
-        self.editors[-1].highlight_current_line()
+        # self.editors[-1].highlight_current_line()
 
     def close_tab(self, event=None):
         if self.notebook_no_tabs('close'):
@@ -405,14 +393,14 @@ class PyEdit:
         selected_tab = self.get_selected_tab_index()
         try:
             self.editors[selected_tab].text_widget.edit_undo()
-            self.editors[selected_tab].highlight_current_line()
+            # self.editors[selected_tab].highlight_current_line()
             if not self.editors[selected_tab].text_widget.edit_modified():
                 self.notebook.tab(selected_tab, text=self.editors[selected_tab].file_name)
             else:
                 self.notebook.tab(selected_tab, text='*' + self.editors[selected_tab].file_name)
         except TclError:
             self.editors[selected_tab].text_widget.edit_redo()
-            self.editors[selected_tab].highlight_current_line()
+            # self.editors[selected_tab].highlight_current_line()
             print('undo error')
             return
 
@@ -423,7 +411,7 @@ class PyEdit:
         selected_tab = self.get_selected_tab_index()
         try:
             self.editors[selected_tab].text_widget.edit_redo()
-            self.editors[selected_tab].highlight_current_line()
+            # self.editors[selected_tab].highlight_current_line()
             if not self.editors[selected_tab].text_widget.edit_modified():
                 self.notebook.tab(selected_tab, text=self.editors[selected_tab].file_name)
             else:
@@ -440,7 +428,7 @@ class PyEdit:
             selected_tab = self.get_selected_tab_index()
             self.clipboards[selected_tab] = self.editors[selected_tab].text_widget.get('sel.first', 'sel.last')
             self.editors[selected_tab].text_widget.delete('sel.first', 'sel.last')
-            self.editors[selected_tab].highlight_current_line()
+            # self.editors[selected_tab].highlight_current_line()
             print('Cut: ' + self.clipboards[selected_tab])
         except TclError:
             print('cut error')
@@ -453,7 +441,7 @@ class PyEdit:
         try:
             selected_tab = self.get_selected_tab_index()
             self.clipboards[selected_tab] = self.editors[selected_tab].text_widget.get('sel.first', 'sel.last')
-            self.editors[selected_tab].highlight_current_line()
+            # self.editors[selected_tab].highlight_current_line()
             print('Copied: ' + self.clipboards[selected_tab])
         except TclError:
             print('copy error')
@@ -466,7 +454,7 @@ class PyEdit:
         selected_tab = self.get_selected_tab_index()
         if self.clipboards[selected_tab] != '':
             self.editors[selected_tab].text_widget.insert('insert', self.clipboards[selected_tab])
-            self.editors[selected_tab].highlight_current_line()
+            # self.editors[selected_tab].highlight_current_line()
             print('Pasted: ' + self.clipboards[selected_tab])
         else:
             print('paste error')
@@ -475,8 +463,16 @@ class PyEdit:
         Preferences(self)
 
     def config_update(self):
+        if self.notebook_no_tabs('Nothing to update...', 'message'):
+            return
+
+        print('config_update: ' + str(self.config))
+
         for i in range(len(self.editors)):
-            self.editors[i].config_update()
+            self.editors[i].config_update(self.config)
+
+        selected_tab = self.get_selected_tab_index()
+        self.editors[selected_tab].text_widget.focus_force()
 
     def window_close(self, event=None):
         if not self.notebook_no_tabs('Nothing to close, destroying immediately!', 'message'):
