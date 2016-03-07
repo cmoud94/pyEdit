@@ -46,6 +46,9 @@ class Preferences:
         self.root.option_add('*tearOff', FALSE)
         self.root.columnconfigure(0, weight=1)
 
+        self.root.bind('<Expose>', self.on_expose)
+        self.root.wm_protocol('WM_DELETE_WINDOW', self.on_close)
+
         # Text wrapping
         self.lf_text_wrapping = LabelFrame(self.root, text='Text wrapping', font=self.font, relief='flat')
         self.lf_text_wrapping.grid(column=0, row=0, stick='nsew', padx=5, pady=5)
@@ -70,6 +73,7 @@ class Preferences:
         self.chkbtn_line_numbers = Checkbutton(self.lf_line_numbers,
                                                text='Show line numbers',
                                                variable=self.config[2])
+
         self.chkbtn_line_numbers.grid(column=0, row=0, sticky='nsw', padx=5, pady=5)
         self.chkbtn_line_numbers.var = self.config[2]
 
@@ -105,7 +109,7 @@ class Preferences:
         # Read config
         if self.config_read() is None:
             self.config_write(create_new=True)
-            self.config_read()
+        self.config_read()
 
     def config_read(self):
         config_file = None
@@ -183,7 +187,8 @@ class Preferences:
         conf_file.close()
 
         self.parent.config = conf
-        self.root.destroy()
+        self.root.grab_release()
+        self.on_close()
         self.parent.config_update()
 
     def font_config(self, event=None):
@@ -194,3 +199,22 @@ class Preferences:
             self.chkbtn_text_wrap_mode.config(state='disable')
         else:
             self.chkbtn_text_wrap_mode.config(state='normal')
+
+    def on_expose(self, event=None):
+        # Center widget on top of parent window
+        parent_x = self.parent.root.winfo_x()
+        parent_y = self.parent.root.winfo_y()
+        parent_w = self.parent.root.winfo_width()
+        parent_x_mid = parent_x + (parent_w / 2)
+        root_x = parent_x_mid - (self.root.winfo_width() / 2)
+        root_y = parent_y
+        self.root.geometry(
+            str(self.root.winfo_width()) + 'x' + str(self.root.winfo_height()) + '+' + str(int(root_x)) + '+' + str(
+                int(root_y)))
+
+        self.root.grab_set()
+        self.root.transient(self.parent.root)
+
+    def on_close(self, event=None):
+        self.root.grab_release()
+        self.root.destroy()

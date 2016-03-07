@@ -33,6 +33,9 @@ class FontSelector:
         self.root.title('pyEdit Font Selector')
         self.root.resizable(False, False)
 
+        self.root.bind('<Expose>', self.on_expose)
+        self.root.wm_protocol('WM_DELETE_WINDOW', self.on_close)
+
         # Family
         self.lf_family = LabelFrame(self.root, text='Family:', font=self.font, relief='flat')
         self.lf_family.grid(column=0, row=0, sticky='nsew', padx=5, pady=5)
@@ -109,4 +112,23 @@ class FontSelector:
             weight.set(self.listbox_weight.get(self.listbox_weight.curselection()[0]))
             self.parent.config[6] = weight
 
+        self.on_close()
+
+    def on_expose(self, event=None):
+        # Center widget on top of parent window
+        parent_x = self.parent.root.winfo_x()
+        parent_y = self.parent.root.winfo_y()
+        parent_w = self.parent.root.winfo_width()
+        parent_x_mid = parent_x + (parent_w / 2)
+        root_x = parent_x_mid - (self.root.winfo_width() / 2)
+        root_y = parent_y
+        self.root.geometry(
+            str(self.root.winfo_width()) + 'x' + str(self.root.winfo_height()) + '+' + str(int(root_x)) + '+' + str(
+                int(root_y)))
+
+        self.root.grab_set()
+        self.root.transient(self.parent.root)
+
+    def on_close(self, event=None):
+        self.root.grab_release()
         self.root.destroy()
