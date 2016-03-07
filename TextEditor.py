@@ -33,7 +33,8 @@ class TextEditor:
                                 maxundo=-1,
                                 autoseparator=True)
         self.text_widget.grid(column=1, row=0, sticky='nsew')
-        self.text_widget.insert('1.0', content)
+        self.text_widget.delete('1.0', 'end')
+        self.text_widget.insert('end', content)
         self.text_widget.edit_modified(False)
 
         self.scroll_bar = Scrollbar(self.frame, bd=0, orient='vertical', command=self.scroll_update)

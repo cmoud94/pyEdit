@@ -71,7 +71,8 @@ class PyEdit:
         menu_file.add_command(label='Open', accelerator='Ctrl+O', command=self.open_file)
         menu_file.add_separator()
         menu_file.add_command(label='Save', accelerator='Ctrl+S', command=self.save_file)
-        menu_file.add_command(label='Save as...', accelerator='Ctrl+Shift+S', command='')
+        menu_file.add_command(label='Save as...', accelerator='Ctrl+Shift+S',
+                              command=lambda: self.save_file(save_as=True))
         menu_file.add_separator()
         menu_file.add_command(label='Exit', accelerator='Ctrl+Q', command=self.window_close)
 
@@ -286,7 +287,7 @@ class PyEdit:
         self.root.bind_all('<Control-n>', self.new_tab)
         self.root.bind_all('<Control-o>', self.open_file)
         self.root.bind_all('<Control-s>', self.save_file)
-        self.root.bind_all('<Control-S>', '')
+        self.root.bind_all('<Control-S>', lambda e: self.save_file(e, save_as=True))
         self.root.bind_all('<Control-w>', self.close_tab)
 
         # Edit shortcuts
@@ -311,7 +312,6 @@ class PyEdit:
     def new_tab(self, event=None, file_path='', content=''):
         self.editors.append(TextEditor(self, file_path, content, self.config))
         self.clipboards.append('')
-        # self.editors[-1].highlight_current_line()
 
     def close_tab(self, event=None):
         if self.notebook_no_tabs('close'):
@@ -330,7 +330,7 @@ class PyEdit:
             elif response == 'cancel':
                 return
 
-        print('Closing tab \'' + self.editors[selected_tab].file_name + '\'')
+        print('Closing tab \'' + str(self.editors[selected_tab].file_name) + '\'')
 
         for bind in self.editors[selected_tab].text_widget.bind():
             self.editors[selected_tab].text_widget.unbind(bind)
@@ -348,7 +348,7 @@ class PyEdit:
             size = file.tell()
             file.seek(0, 0)
 
-            content = file.read(size)
+            content = file.read(size - 1)
 
             self.new_tab(file_path=file_path, content=content)
 
@@ -356,20 +356,20 @@ class PyEdit:
         except IOError:
             print('File not found or \'Cancel\' pressed!')
 
-    def save_file(self, event=None):
+    def save_file(self, event=None, save_as=False):
         if self.notebook_no_tabs('save'):
             return
 
         selected_tab = self.get_selected_tab_index()
-        if not self.editors[selected_tab].text_widget.edit_modified():
-            print('File already saved...')
-            return
+        if not save_as:
+            if not self.editors[selected_tab].text_widget.edit_modified():
+                print('File already saved...')
+                return
 
         file_path = self.editors[selected_tab].file_path
-        if file_path == '':
+        if file_path == '' or save_as:
             file_path = filedialog.asksaveasfilename()
-            self.editors[selected_tab].file_path = file_path
-            self.editors[selected_tab].file_name = self.editors[selected_tab].update_file_name(file_path)
+            self.editors[selected_tab].update_file_name(file_path)
 
         try:
             save_file = open(file_path, 'w')
@@ -380,7 +380,7 @@ class PyEdit:
             print('IO error! (save_file)')
 
         self.editors[selected_tab].text_widget.edit_modified(False)
-        if not self.editors[selected_tab].text_widget.edit_modified():
+        if save_as or not self.editors[selected_tab].text_widget.edit_modified():
             self.notebook.tab(selected_tab, text=self.editors[selected_tab].file_name)
 
     def undo(self, event=None):
@@ -390,14 +390,12 @@ class PyEdit:
         selected_tab = self.get_selected_tab_index()
         try:
             self.editors[selected_tab].text_widget.edit_undo()
-            # self.editors[selected_tab].highlight_current_line()
             if not self.editors[selected_tab].text_widget.edit_modified():
                 self.notebook.tab(selected_tab, text=self.editors[selected_tab].file_name)
             else:
                 self.notebook.tab(selected_tab, text='*' + self.editors[selected_tab].file_name)
         except TclError:
             self.editors[selected_tab].text_widget.edit_redo()
-            # self.editors[selected_tab].highlight_current_line()
             print('undo error')
             return
 
@@ -408,7 +406,6 @@ class PyEdit:
         selected_tab = self.get_selected_tab_index()
         try:
             self.editors[selected_tab].text_widget.edit_redo()
-            # self.editors[selected_tab].highlight_current_line()
             if not self.editors[selected_tab].text_widget.edit_modified():
                 self.notebook.tab(selected_tab, text=self.editors[selected_tab].file_name)
             else:
@@ -425,7 +422,6 @@ class PyEdit:
             selected_tab = self.get_selected_tab_index()
             self.clipboards[selected_tab] = self.editors[selected_tab].text_widget.get('sel.first', 'sel.last')
             self.editors[selected_tab].text_widget.delete('sel.first', 'sel.last')
-            # self.editors[selected_tab].highlight_current_line()
             print('Cut: ' + self.clipboards[selected_tab])
         except TclError:
             print('cut error')
@@ -438,7 +434,6 @@ class PyEdit:
         try:
             selected_tab = self.get_selected_tab_index()
             self.clipboards[selected_tab] = self.editors[selected_tab].text_widget.get('sel.first', 'sel.last')
-            # self.editors[selected_tab].highlight_current_line()
             print('Copied: ' + self.clipboards[selected_tab])
         except TclError:
             print('copy error')
@@ -451,7 +446,6 @@ class PyEdit:
         selected_tab = self.get_selected_tab_index()
         if self.clipboards[selected_tab] != '':
             self.editors[selected_tab].text_widget.insert('insert', self.clipboards[selected_tab])
-            # self.editors[selected_tab].highlight_current_line()
             print('Pasted: ' + self.clipboards[selected_tab])
         else:
             print('paste error')
@@ -474,7 +468,6 @@ class PyEdit:
     def window_close(self, event=None):
         if not self.notebook_no_tabs('Nothing to close, destroying immediately!', 'message'):
             for index in range(len(self.editors) - 1, -1, -1):
-                # print('Index: ' + str(index))
                 self.notebook.select(index)
                 self.close_tab()
         self.root.destroy()
