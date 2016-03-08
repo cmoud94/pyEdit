@@ -13,6 +13,7 @@ class TextEditor:
         self.conf_show_line_numbers = False
         self.conf_highlight_current_line = False
         self.conf_font = None
+        self.conf_tab_width = 4
 
         if self.file_path != '':
             index = file_path.rfind('/')
@@ -35,6 +36,8 @@ class TextEditor:
         self.text_widget.grid(column=1, row=0, sticky='nsew')
         self.text_widget.delete('1.0', 'end')
         self.text_widget.insert('end', content)
+        self.text_widget.mark_set('insert', '1.0')
+        self.text_widget.see('1.0')
         self.text_widget.edit_modified(False)
 
         self.scroll_bar = Scrollbar(self.frame, bd=0, orient='vertical', command=self.scroll_update)
@@ -58,23 +61,24 @@ class TextEditor:
                                   'Shift_L', 'Shift_R',
                                   'Alt_L', 'Alt_R']
 
-        # Shortcuts init
-        self.text_widget.bind('<KeyRelease>', self.key_release)
-        if self.conf_show_line_numbers:
-            self.text_widget.bind('<Configure>', self.line_number_widget.update)
-        self.text_widget.bind('<ButtonRelease>', self.mouse)
-
         # Unbinding
         self.text_widget.unbind_class('Text', '<Control-o>')
+        self.text_widget.unbind_class('Text', '<Control-a>')
         self.text_widget.unbind_class('Text', '<<Undo>>')
         self.text_widget.unbind_class('Text', '<<Redo>>')
         self.text_widget.unbind_class('Text', '<<Cut>>')
         self.text_widget.unbind_class('Text', '<<Copy>>')
         self.text_widget.unbind_class('Text', '<<Paste>>')
 
-        self.config_update(config)
+        # Shortcuts init
+        self.text_widget.bind('<KeyRelease>', self.key_release)
+        if self.conf_show_line_numbers:
+            self.text_widget.bind('<Configure>', self.line_number_widget.update)
+        self.text_widget.bind('<ButtonRelease>', self.mouse)
 
-        # print(self.text_widget.bind_class('Text'))
+        self.text_widget.bind('<Control-a>', self.select_all)
+
+        self.config_update(config)
 
     def scroll_update(self, *event):
         if 'moveto' in event[0]:
@@ -154,11 +158,13 @@ class TextEditor:
             self.conf_show_line_numbers = True if config[2] == 1 else False
             self.conf_highlight_current_line = True if config[3] == 1 else False
             self.conf_font = font.Font(family=config[4], size=config[5], weight=config[6])
+            self.conf_tab_width = config[7]
         else:
             self.conf_text_wrap_mode = 'word'
             self.conf_show_line_numbers = True
             self.conf_highlight_current_line = True
             self.conf_font = font.Font(family='Monospace', size=10, weight='normal')
+            self.conf_tab_width = 4
 
         if self.conf_show_line_numbers:
             if self.line_number_widget is None:
@@ -177,7 +183,19 @@ class TextEditor:
         else:
             self.unhighlight_currnt_line()
 
-        self.text_widget.config(wrap=self.conf_text_wrap_mode, font=self.conf_font)
+        # Font metrics
+        tab_width = self.conf_font.measure('a') * self.conf_tab_width
+
+        self.text_widget.config(wrap=self.conf_text_wrap_mode,
+                                font=self.conf_font,
+                                tabs=tab_width,
+                                tabstyle='wordprocessor')
 
         if self.conf_show_line_numbers:
             self.line_number_widget.update()
+
+    def select_all(self, event=None):
+        self.text_widget.tag_add('sel', '1.0', 'end')
+        self.text_widget.mark_set('insert', '1.0')
+        self.text_widget.see('insert')
+        return 'break'

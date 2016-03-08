@@ -8,8 +8,8 @@ class Preferences:
         self.parent = parent
         self.config = []
         self.config_keys = ['text_wrap', 'text_wrap_whole_words', 'show_line_numbers', 'highlight_current_line',
-                            'font_family', 'font_size', 'font_weight']
-        self.config_default_values = [1, 1, 1, 1, 'Monospace', 10, 'normal']
+                            'font_family', 'font_size', 'font_weight', 'tab_width']
+        self.config_default_values = [1, 1, 1, 1, 'Monospace', 10, 'normal', 4]
 
         # text_wrap
         self.config.append(IntVar())
@@ -32,6 +32,9 @@ class Preferences:
         # font_weight
         self.config.append(StringVar())
 
+        # Tab width
+        self.config.append(IntVar())
+
         self.font_btn_text = StringVar()
 
         self.font = font.Font(size=9, weight='bold')
@@ -48,6 +51,8 @@ class Preferences:
 
         self.root.bind('<Expose>', self.on_expose)
         self.root.wm_protocol('WM_DELETE_WINDOW', self.on_close)
+
+        self.root.bind('<Control-g>', lambda e: self.config_write(create_new=True, close=False))
 
         # Text wrapping
         self.lf_text_wrapping = LabelFrame(self.root, text='Text wrapping', font=self.font, relief='flat')
@@ -87,9 +92,19 @@ class Preferences:
         self.chkbtn_highlight_current_line.grid(column=0, row=0, sticky='nsw', padx=5, pady=5)
         self.chkbtn_highlight_current_line.var = self.config[3]
 
+        # Tab width
+        self.lf_tab_width = LabelFrame(self.root, text='Tab width', font=self.font, relief='flat')
+        self.lf_tab_width.grid(column=0, row=3, sticky='nsew', padx=5, pady=5)
+
+        self.spinbox_tab_width = Spinbox(self.lf_tab_width,
+                                         values=(2, 4, 8),
+                                         textvariable=self.config[7],
+                                         state='readonly')
+        self.spinbox_tab_width.grid(column=0, row=0, sticky='nsew', padx=5, pady=5)
+
         # Font
         self.lf_font = LabelFrame(self.root, text='Font settings', font=self.font, relief='flat')
-        self.lf_font.grid(column=0, row=3, sticky='nsew', padx=5, pady=5)
+        self.lf_font.grid(column=0, row=4, sticky='nsew', padx=5, pady=5)
         self.lf_font.columnconfigure(0, weight=1)
 
         self.btn_font = Button(self.lf_font,
@@ -97,9 +112,9 @@ class Preferences:
                                command=self.font_config)
         self.btn_font.grid(column=0, row=0, sticky='nsew', padx=5, pady=5)
 
-        # Buttons
+        # Close button
         self.frame_buttons = Frame(self.root)
-        self.frame_buttons.grid(column=0, row=4, sticky='se', padx=5, pady=5)
+        self.frame_buttons.grid(column=0, row=5, sticky='se', padx=5, pady=5)
 
         self.btn_close = Button(self.frame_buttons,
                                 text='Close',
@@ -109,7 +124,7 @@ class Preferences:
         # Read config
         if self.config_read() is None:
             self.config_write(create_new=True)
-        self.config_read()
+            self.config_read()
 
     def config_read(self):
         config_file = None
@@ -123,7 +138,7 @@ class Preferences:
 
             config_file.close()
 
-            if size == 0:
+            if size == 0 or config_file is None:
                 return None
         except IOError:
             print('Error while reading config file!')
@@ -156,6 +171,9 @@ class Preferences:
             if kv[0] == 'font_weight':
                 self.config[6].set(kv[1])
                 ret.append(kv[1])
+            if kv[0] == 'tab_width':
+                self.config[7].set(int(kv[1]))
+                ret.append(int(kv[1]))
 
         self.font_btn_text.set(self.config[4].get() + ' | ' + str(self.config[5].get()))
 
@@ -165,10 +183,13 @@ class Preferences:
 
     def config_read_startup(self):
         config = self.config_read()
+        if config is None:
+            self.config_write(create_new=True)
+            config = self.config_read()
         self.root.destroy()
         return config
 
-    def config_write(self, event=None, create_new=False):
+    def config_write(self, event=None, create_new=False, close=True):
         try:
             conf_file = open('config.conf', 'w')
         except IOError:
@@ -179,6 +200,7 @@ class Preferences:
             conf = [self.config[i].get() for i in range(len(self.config))]
         else:
             conf = [self.config_default_values[i] for i in range(len(self.config_default_values))]
+            print('Generating default config file...')
 
         for i in range(len(conf)):
             conf_file.write(self.config_keys[i] + '=' + str(conf[i]) + '\n')
@@ -187,8 +209,10 @@ class Preferences:
         conf_file.close()
 
         self.parent.config = conf
-        self.root.grab_release()
-        self.on_close()
+        if close:
+            self.on_close()
+        else:
+            self.config_read()
         self.parent.config_update()
 
     def font_config(self, event=None):
@@ -197,7 +221,7 @@ class Preferences:
     def update_wrap_chkbtns(self, event=None):
         if self.chkbtn_text_wrap_enable.var.get() == 0:
             self.chkbtn_text_wrap_mode.config(state='disable')
-        else:
+        elif self.chkbtn_text_wrap_enable.var.get() == 1:
             self.chkbtn_text_wrap_mode.config(state='normal')
 
     def on_expose(self, event=None):

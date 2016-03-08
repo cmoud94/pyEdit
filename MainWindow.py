@@ -354,7 +354,7 @@ class PyEdit:
 
             file.close()
         except IOError:
-            print('File not found or \'Cancel\' pressed!')
+            print('File not found or \'Cancel\' pressed.')
 
     def save_file(self, event=None, save_as=False):
         if self.notebook_no_tabs('save'):
@@ -363,14 +363,14 @@ class PyEdit:
         selected_tab = self.get_selected_tab_index()
         if not save_as:
             if self.editors[selected_tab].file_name == 'Document':
-                print('Nothing to save...')
+                print('Document not edited yet.')
                 return
             if not self.editors[selected_tab].text_widget.edit_modified():
                 print('File already saved...')
                 return
 
         if save_as and self.editors[selected_tab].file_name == 'Document':
-            print('Nothing to save...')
+            print('Document not edited yet.')
             return
 
         file_path = self.editors[selected_tab].file_path
@@ -384,7 +384,7 @@ class PyEdit:
             save_file.close()
             print('File saved successfully!')
         except IOError:
-            print('IO error! (save_file)')
+            print('IO error while saving or \'Cancel\' pressed.')
 
         self.editors[selected_tab].text_widget.edit_modified(False)
         if save_as or not self.editors[selected_tab].text_widget.edit_modified():
