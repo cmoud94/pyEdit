@@ -362,9 +362,16 @@ class PyEdit:
 
         selected_tab = self.get_selected_tab_index()
         if not save_as:
+            if self.editors[selected_tab].file_name == 'Document':
+                print('Nothing to save...')
+                return
             if not self.editors[selected_tab].text_widget.edit_modified():
                 print('File already saved...')
                 return
+
+        if save_as and self.editors[selected_tab].file_name == 'Document':
+            print('Nothing to save...')
+            return
 
         file_path = self.editors[selected_tab].file_path
         if file_path == '' or save_as:
