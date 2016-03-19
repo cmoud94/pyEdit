@@ -1,5 +1,3 @@
-from tkinter.ttk import Style
-
 from FontSelector import *
 
 
@@ -116,10 +114,15 @@ class Preferences:
         self.frame_buttons = Frame(self.root)
         self.frame_buttons.grid(column=0, row=5, sticky='se', padx=5, pady=5)
 
+        self.btn_default_config = Button(self.frame_buttons,
+                                         text='Default',
+                                         command=lambda: self.config_write(create_new=True, close=False))
+        self.btn_default_config.grid(column=0, row=0, sticky='se', padx=5, pady=5)
+
         self.btn_close = Button(self.frame_buttons,
                                 text='Close',
                                 command=self.config_write)
-        self.btn_close.grid(column=0, row=0, sticky='se', padx=5, pady=5)
+        self.btn_close.grid(column=1, row=0, sticky='se', padx=5, pady=5)
 
         # Read config
         if self.config_read() is None:

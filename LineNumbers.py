@@ -12,7 +12,8 @@ class LineNumbers:
                                 width=1,
                                 relief='flat',
                                 bd=0,
-                                bg='light gray')
+                                bg='#e0e0e0',
+                                fg='#000')
         self.line_widget.grid(column=0, row=0, sticky='ns')
         self.line_num = ''
 

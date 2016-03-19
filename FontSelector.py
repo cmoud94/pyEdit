@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from tkinter import *
 from tkinter import font
+from tkinter.ttk import Style
 
 
 class FontSelector:
@@ -18,6 +19,9 @@ class FontSelector:
         sizes = sizes_low + sizes_high
 
         weights = ('normal', 'bold')
+
+        self.style = Style()
+        self.style.theme_use('clam')
 
         self.families = StringVar()
         self.sizes = StringVar()
@@ -43,12 +47,14 @@ class FontSelector:
         self.frame_family = Frame(self.lf_family)
         self.frame_family.grid(column=0, row=0, sticky='nsew', padx=5, pady=5)
 
-        self.listbox_family = Listbox(self.frame_family, listvariable=self.families)
+        self.listbox_family = Listbox(self.frame_family, bd=0, listvariable=self.families)
         self.listbox_family.grid(column=0, row=0, sticky='nsew')
 
-        self.scrollbar_family = Scrollbar(self.frame_family, orient='vertical', command=self.listbox_family.yview)
+        self.scrollbar_family = Scrollbar(self.frame_family, orient='vertical', bd=0, command=self.listbox_family.yview)
         self.scrollbar_family.grid(column=1, row=0, sticky='ns')
         self.listbox_family.config(yscrollcommand=self.scrollbar_family.set)
+
+        # print(self.families.get().count(self.selected_family.get()))
 
         # Size
         self.lf_size = LabelFrame(self.root, text='Size:', font=self.font, relief='flat')
@@ -57,10 +63,10 @@ class FontSelector:
         self.frame_size = Frame(self.lf_size)
         self.frame_size.grid(column=0, row=0, sticky='nsew', padx=5, pady=5)
 
-        self.listbox_size = Listbox(self.frame_size, listvariable=self.sizes, width=3)
+        self.listbox_size = Listbox(self.frame_size, bd=0, listvariable=self.sizes, width=3)
         self.listbox_size.grid(column=0, row=0, sticky='nsew')
 
-        self.scrollbar_size = Scrollbar(self.frame_size, orient='vertical', command=self.listbox_size.yview)
+        self.scrollbar_size = Scrollbar(self.frame_size, orient='vertical', bd=0, command=self.listbox_size.yview)
         self.scrollbar_size.grid(column=1, row=0, sticky='ns')
         self.listbox_size.config(yscrollcommand=self.scrollbar_size.set)
 
@@ -73,7 +79,7 @@ class FontSelector:
         self.frame_weight.grid(column=0, row=0, sticky='nsew', padx=5, pady=5)
         self.frame_weight.columnconfigure(0, weight=1)
 
-        self.listbox_weight = Listbox(self.frame_weight, listvariable=self.weight, height=2)
+        self.listbox_weight = Listbox(self.frame_weight, bd=0, listvariable=self.weight, height=2)
         self.listbox_weight.grid(column=0, row=0, sticky='nsew')
 
         # Slant
@@ -104,13 +110,24 @@ class FontSelector:
             family.set(self.listbox_family.get(self.listbox_family.curselection()[0]))
             self.parent.config[4] = family
 
+        print('=================================================')
+        print('family: ' + str(family.get()) + '\n\t -> ' + str(
+            self.listbox_family.curselection()))
+
         if len(self.listbox_size.curselection()) == 1:
             size.set(self.listbox_size.get(self.listbox_size.curselection()[0]))
             self.parent.config[5] = size
 
+        print('size: ' + str(size.get()) + '\n\t -> ' + str(
+            self.listbox_size.curselection()))
+
         if len(self.listbox_weight.curselection()) == 1:
             weight.set(self.listbox_weight.get(self.listbox_weight.curselection()[0]))
             self.parent.config[6] = weight
+
+        print('weight: ' + str(weight.get()) + '\n\t -> ' + str(
+            self.listbox_weight.curselection()))
+        print('\n')
 
         self.on_close()
 
