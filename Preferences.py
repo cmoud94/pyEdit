@@ -48,9 +48,8 @@ class Preferences:
         self.root.columnconfigure(0, weight=1)
 
         self.root.bind('<Expose>', self.on_expose)
+        self.root.bind('<ButtonRelease-1>', lambda e: self.config_write(event=e, close=False))
         self.root.wm_protocol('WM_DELETE_WINDOW', self.on_close)
-
-        self.root.bind('<Control-g>', lambda e: self.config_write(create_new=True, close=False))
 
         # Text wrapping
         self.lf_text_wrapping = LabelFrame(self.root, text='Text wrapping', font=self.font, relief='flat')
@@ -121,7 +120,7 @@ class Preferences:
 
         self.btn_close = Button(self.frame_buttons,
                                 text='Close',
-                                command=self.config_write)
+                                command=self.on_close)
         self.btn_close.grid(column=1, row=0, sticky='se', padx=5, pady=5)
 
         # Read config

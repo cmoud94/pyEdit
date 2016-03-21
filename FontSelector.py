@@ -49,12 +49,11 @@ class FontSelector:
 
         self.listbox_family = Listbox(self.frame_family, bd=0, listvariable=self.families)
         self.listbox_family.grid(column=0, row=0, sticky='nsew')
+        self.listbox_family.bind('<ButtonRelease-1>', lambda e: self.listbox_event_handler(event=e, listbox='family'))
 
         self.scrollbar_family = Scrollbar(self.frame_family, orient='vertical', bd=0, command=self.listbox_family.yview)
         self.scrollbar_family.grid(column=1, row=0, sticky='ns')
         self.listbox_family.config(yscrollcommand=self.scrollbar_family.set)
-
-        # print(self.families.get().count(self.selected_family.get()))
 
         # Size
         self.lf_size = LabelFrame(self.root, text='Size:', font=self.font, relief='flat')
@@ -65,6 +64,7 @@ class FontSelector:
 
         self.listbox_size = Listbox(self.frame_size, bd=0, listvariable=self.sizes, width=3)
         self.listbox_size.grid(column=0, row=0, sticky='nsew')
+        self.listbox_size.bind('<ButtonRelease-1>', lambda e: self.listbox_event_handler(event=e, listbox='size'))
 
         self.scrollbar_size = Scrollbar(self.frame_size, orient='vertical', bd=0, command=self.listbox_size.yview)
         self.scrollbar_size.grid(column=1, row=0, sticky='ns')
@@ -81,6 +81,7 @@ class FontSelector:
 
         self.listbox_weight = Listbox(self.frame_weight, bd=0, listvariable=self.weight, height=2)
         self.listbox_weight.grid(column=0, row=0, sticky='nsew')
+        self.listbox_weight.bind('<ButtonRelease-1>', lambda e: self.listbox_event_handler(event=e, listbox='weight'))
 
         # Slant
         # self.lf_slant = LabelFrame(self.root, text='Slant:', font=self.font, relief='flat')
@@ -98,38 +99,26 @@ class FontSelector:
         self.frame_btn.grid(column=0, row=2, sticky='nsew', padx=5, pady=5, columnspan=2)
         self.frame_btn.columnconfigure(0, weight=1)
 
-        self.btn_close = Button(self.frame_btn, text='Close', command=self.btn_click)
+        self.btn_close = Button(self.frame_btn, text='Close', command=self.on_close)
         self.btn_close.grid(column=0, row=0, sticky='nse', padx=5, pady=5)
 
-    def btn_click(self):
-        family = StringVar()
-        size = IntVar()
-        weight = StringVar()
-
-        if len(self.listbox_family.curselection()) == 1:
+    def listbox_event_handler(self, event=None, listbox=''):
+        if listbox == 'family':
+            family = StringVar()
             family.set(self.listbox_family.get(self.listbox_family.curselection()[0]))
             self.parent.config[4] = family
 
-        print('=================================================')
-        print('family: ' + str(family.get()) + '\n\t -> ' + str(
-            self.listbox_family.curselection()))
-
-        if len(self.listbox_size.curselection()) == 1:
+        if listbox == 'size':
+            size = IntVar()
             size.set(self.listbox_size.get(self.listbox_size.curselection()[0]))
             self.parent.config[5] = size
 
-        print('size: ' + str(size.get()) + '\n\t -> ' + str(
-            self.listbox_size.curselection()))
-
-        if len(self.listbox_weight.curselection()) == 1:
+        if listbox == 'weight':
+            weight = StringVar()
             weight.set(self.listbox_weight.get(self.listbox_weight.curselection()[0]))
             self.parent.config[6] = weight
 
-        print('weight: ' + str(weight.get()) + '\n\t -> ' + str(
-            self.listbox_weight.curselection()))
-        print('\n')
-
-        self.on_close()
+        self.parent.config_write(close=False)
 
     def on_expose(self, event=None):
         # Center widget on top of parent window

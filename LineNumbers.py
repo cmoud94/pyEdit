@@ -18,8 +18,8 @@ class LineNumbers:
         self.line_num = ''
 
     def update(self, event=None):
-        self.line_widget.update_idletasks()
-        self.text_widget.update_idletasks()
+        # self.line_widget.update_idletasks()
+        # self.text_widget.update_idletasks()
         self.line_num = ''
         num_lines = self.text_widget.get('1.0', 'end').count('\n')
 

@@ -191,8 +191,16 @@ class TextEditor:
                                 tabs=tab_width,
                                 tabstyle='wordprocessor')
 
+        font_width = self.conf_font.measure('a')
+        font_height = self.conf_font.metrics('linespace')
+        new_text_width = self.text_widget['width']
+        new_text_height = self.text_widget['height']
+
         if self.conf_show_line_numbers:
             self.line_number_widget.update()
+
+        window_geometry = self.parent.root.geometry()
+        self.parent.root.geometry(window_geometry)
 
     def select_all(self, event=None):
         self.text_widget.tag_add('sel', '1.0', 'end')
