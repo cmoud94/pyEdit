@@ -1,0 +1,17 @@
+All=*
+Bat file=bat
+C header file=h
+C++ header file=hpp
+Config file=cfg
+Config file=conf
+C source file=c
+C++ source file=cpp
+Htm file=htm
+Html file=html
+Log file=log
+NFO file=nfo
+Python source file=py
+Reg file=reg
+Shell script=sh
+Text file=txt
+XML document=xml

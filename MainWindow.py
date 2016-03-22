@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+import platform
 from tkinter import filedialog, messagebox
 from tkinter.ttk import Separator, Notebook
 
@@ -31,6 +32,10 @@ class PyEdit:
         self.editors = []
         self.clipboards = []
         self.config = []
+
+        self.supported_file_extensions = self.get_supported_file_extensions()
+
+        self.os = platform.system()
 
         # Style init
         self.style = Style()
@@ -76,7 +81,7 @@ class PyEdit:
         self.statusbar_tab_width = StringVar()
         self.statusbar_current_line = StringVar()
         self.statusbar_current_row = StringVar()
-        self.statusbar_text = ['tab width', 'ln', 'row']
+        self.statusbar_text = ['tab width', 'ln', 'col']
         self.statusbar = self.statusbar_init()
 
         # Shortcuts init
@@ -400,7 +405,9 @@ class PyEdit:
         self.update_title()
 
     def open_file(self, event=None):
-        file_path = filedialog.askopenfilename()
+        file_path = filedialog.askopenfilename(title='Open file...',
+                                               defaultextension=self.supported_file_extensions[0],
+                                               filetypes=self.supported_file_extensions)
 
         try:
             file = open(file_path, 'r')
@@ -432,7 +439,10 @@ class PyEdit:
 
         file_path = self.editors[selected_tab].file_path
         if file_path == '' or save_as:
-            file_path = filedialog.asksaveasfilename()
+            title = 'Save file...' if not save_as else 'Save file as...'
+            file_path = filedialog.asksaveasfilename(title=title,
+                                                     defaultextension=self.supported_file_extensions[0],
+                                                     filetypes=self.supported_file_extensions)
             if file_path != '':
                 self.editors[selected_tab].update_file_name(file_path)
 
@@ -607,7 +617,31 @@ class PyEdit:
         print('File modified (from last save): ' + str(bool(self.editors[selected_tab].text_widget.edit_modified())))
         print('Lines: ' + str(self.editors[selected_tab].text_widget.get('1.0', 'end').count('\n')))
 
+    def get_supported_file_extensions(self):
+        sfe = []
+        try:
+            file = open('supported_file_extensions.txt', 'r')
+            file.seek(0, 2)
+            size = file.tell()
+            file.seek(0, 0)
+            content = file.read(size).splitlines()
+            for i in range(len(content)):
+                f_type = []
+                f_type.append(content[i].split('=')[0])
+                f_type.append('*.' + content[i].split('=')[1])
+                sfe.append(tuple(f_type))
+            file.close()
+        except IOError:
+            print('IOError')
 
-tk = Tk()
-app = PyEdit(tk)
-tk.mainloop()
+        return sfe
+
+
+def main():
+    tk = Tk()
+    app = PyEdit(tk)
+    tk.mainloop()
+
+
+if __name__ == '__main__':
+    main()

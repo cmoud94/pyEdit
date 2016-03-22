@@ -39,16 +39,18 @@ class About:
         self.label_app_name = Label(self.root, text='pyEdit (Lightweight IDE)')
         self.label_app_name.grid(column=0, row=0, sticky='nsew', ipadx=5, ipady=5)
 
-        self.label_author = Label(self.root, text='by KOU0120')
+        self.label_author = Label(self.root, text='Author: Marek Kouřil')
         self.label_author.grid(column=0, row=1, sticky='nsew', ipadx=5, ipady=5)
 
-        self.label_year = Label(self.root, text='in 2k16')
+        self.label_year = Label(self.root, text='2016')
         self.label_year.grid(column=0, row=2, sticky='nsew', ipadx=5, ipady=5)
 
-        self.label_course = Label(self.root, text='for \'URO\' course')
+        self.label_course = Label(self.root, text='\'URO\' course')
         self.label_course.grid(column=0, row=3, sticky='nsew', ipadx=5, ipady=5)
 
     def on_expose(self, event=None):
+        if self.parent.os != 'Linux':
+            return
         # Center widget on top of parent window
         parent_x = self.parent.root.winfo_x()
         parent_y = self.parent.root.winfo_y()

@@ -59,6 +59,8 @@ class Help:
         self.text_widget.config(yscrollcommand=self.scrollbar.set)
 
     def on_expose(self, event=None):
+        if self.parent.os != 'Linux':
+            return
         # Center widget on top of parent window
         parent_x = self.parent.root.winfo_x()
         parent_y = self.parent.root.winfo_y()
