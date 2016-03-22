@@ -44,7 +44,7 @@ class Preferences:
         self.style.theme_use('clam')
 
         self.root = Toplevel()
-        self.root.title('pyEdit Preferences')
+        self.root.title('pyEdit - Preferences')
         self.root.minsize(300, 0)
         self.root.resizable(False, False)
         self.root.option_add('*tearOff', FALSE)

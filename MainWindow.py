@@ -1,6 +1,8 @@
 from tkinter import filedialog, messagebox
 from tkinter.ttk import Separator, Notebook
 
+from About import *
+from Help import *
 from Preferences import *
 from TextEditor import *
 from Tooltip import *
@@ -111,8 +113,8 @@ class PyEdit:
         # Help menu
         menu_help = Menu(menu_bar)
 
-        menu_help.add_command(label='Help', command='')
-        menu_help.add_command(label='About', command='')
+        menu_help.add_command(label='Help', accelerator='F1', command=self.help)
+        menu_help.add_command(label='About', command=self.about)
 
         menu_bar.add_cascade(menu=menu_help, label='Help')
 
@@ -328,8 +330,11 @@ class PyEdit:
         self.root.bind_all('<Control-period>', self.preferences)
 
         # Search shortcuts
-        self.root.bind_all('<Control-F>', '')
-        self.root.bind_all('<Control-R>', '')
+        self.root.bind_all('<Control-f>', '')
+        self.root.bind_all('<Control-r>', '')
+
+        # Help options
+        self.root.bind_all('<F1>', self.help)
 
         # Window shortcuts
         self.root.bind_all('<Control-q>', self.window_close)
@@ -341,6 +346,7 @@ class PyEdit:
     def new_tab(self, event=None, file_path='', content=''):
         self.editors.append(TextEditor(self, file_path, content, self.config))
         self.clipboards.append('')
+        self.update_title()
 
     def close_tab(self, event=None):
         if self.notebook_no_tabs('close'):
@@ -372,6 +378,8 @@ class PyEdit:
             self.statusbar_tab_width.set(self.statusbar_text[0] + ': ' + str(self.config[7]))
             self.statusbar_current_line.set(self.statusbar_text[1] + ': None')
             self.statusbar_current_row.set(self.statusbar_text[2] + ': None')
+
+        self.update_title()
 
     def open_file(self, event=None):
         file_path = filedialog.askopenfilename()
@@ -410,7 +418,8 @@ class PyEdit:
         file_path = self.editors[selected_tab].file_path
         if file_path == '' or save_as:
             file_path = filedialog.asksaveasfilename()
-            self.editors[selected_tab].update_file_name(file_path)
+            if file_path != '':
+                self.editors[selected_tab].update_file_name(file_path)
 
         try:
             save_file = open(file_path, 'w')
@@ -421,8 +430,10 @@ class PyEdit:
             print('IO error while saving or \'Cancel\' pressed.')
 
         self.editors[selected_tab].text_widget.edit_modified(False)
-        if save_as or not self.editors[selected_tab].text_widget.edit_modified():
+        if not self.editors[selected_tab].text_widget.edit_modified():
             self.notebook.tab(selected_tab, text=self.editors[selected_tab].file_name)
+
+        self.update_title()
 
     def undo(self, event=None):
         if self.notebook_no_tabs('No tabs, no undo...', 'message'):
@@ -436,9 +447,12 @@ class PyEdit:
             else:
                 self.notebook.tab(selected_tab, text='*' + self.editors[selected_tab].file_name)
         except TclError:
-            self.editors[selected_tab].text_widget.edit_redo()
+            # self.editors[selected_tab].text_widget.edit_redo()
             print('undo error')
             return
+
+        self.editors[selected_tab].highlight_current_line()
+        self.update_title()
 
     def redo(self, event=None):
         if self.notebook_no_tabs('No tabs, no redo...', 'message'):
@@ -455,6 +469,9 @@ class PyEdit:
             print('redo error')
             return
 
+        self.editors[selected_tab].highlight_current_line()
+        self.update_title()
+
     def cut(self, event=None):
         if self.notebook_no_tabs('No tabs, nothing to cut...', 'message'):
             return
@@ -468,6 +485,9 @@ class PyEdit:
             print('cut error')
             return
 
+        self.editors[selected_tab].highlight_current_line()
+        self.update_title()
+
     def copy(self, event=None):
         if self.notebook_no_tabs('No tabs, nothing to copy...', 'message'):
             return
@@ -480,6 +500,9 @@ class PyEdit:
             print('copy error')
             return
 
+        self.editors[selected_tab].highlight_current_line()
+        self.update_title()
+
     def paste(self, event=None):
         if self.notebook_no_tabs('No tabs, nothing to paste...', 'message'):
             return
@@ -490,6 +513,9 @@ class PyEdit:
             print('Pasted: ' + self.clipboards[selected_tab])
         else:
             print('paste error')
+
+        self.editors[selected_tab].highlight_current_line()
+        self.update_title()
 
     def preferences(self, event=None):
         Preferences(self)
@@ -505,6 +531,28 @@ class PyEdit:
 
         selected_tab = self.get_selected_tab_index()
         self.editors[selected_tab].text_widget.focus_force()
+
+    def update_title(self, event=None):
+        if self.notebook_no_tabs('', 'none'):
+            self.root.title('pyEdit')
+            return
+        selected_tab = self.get_selected_tab_index()
+        text = self.notebook.tab(selected_tab).get('text')
+        self.root.title('pyEdit - ' + text)
+
+    # TODO: Dodelat
+    def find(self, event=None):
+        pass
+
+    # TODO: Dodelat
+    def find_and_replace(self, event=None):
+        pass
+
+    def help(self, event=None):
+        Help(self)
+
+    def about(self, event=None):
+        About(self)
 
     def window_close(self, event=None):
         if not self.notebook_no_tabs('Nothing to close, destroying immediately!', 'message'):
@@ -541,7 +589,7 @@ class PyEdit:
         selected_tab = self.get_selected_tab_index()
         print('File name: ' + self.editors[selected_tab].file_name)
         print('File path: ' + self.editors[selected_tab].file_path)
-        print('File modified (from last save): ' + str(self.editors[selected_tab].text_widget.edit_modified()))
+        print('File modified (from last save): ' + str(bool(self.editors[selected_tab].text_widget.edit_modified())))
         print('Lines: ' + str(self.editors[selected_tab].text_widget.get('1.0', 'end').count('\n')))
 
 

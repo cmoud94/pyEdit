@@ -1,0 +1,27 @@
+pyEdit Shortcuts
+
+File:
+    Ctrl+N - Create new file
+    Ctrl+O - Open file
+    Ctrl+S - Save file
+    Ctrl+Shift+S - Save file as...
+    Ctrl+W - Close current file
+    Ctrl+Q - Close app
+
+Edit:
+    Ctrl+Z - Undo
+    Ctrl+Shift+Z - Redo
+    Ctrl+X - Cut
+    Ctrl+C - Copy
+    Ctrl+V - Paste
+    Ctrl+. - Open preferences
+
+Search:
+    Ctrl+F - Find in text
+    Ctrl+R - Find and replace
+
+Help:
+    F1 - Open this help
+
+Debug:
+    Ctrl+D - Print current file info into console (only for debugging)

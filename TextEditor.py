@@ -32,7 +32,10 @@ class TextEditor:
                                 selectbackground='LightBlue3',
                                 undo=True,
                                 maxundo=-1,
-                                autoseparator=True)
+                                autoseparator=True,
+                                spacing1=2,
+                                spacing2=2,
+                                spacing3=2)
         self.text_widget.grid(column=1, row=0, sticky='nsew')
         self.text_widget.delete('1.0', 'end')
         self.text_widget.insert('end', content)
@@ -64,6 +67,7 @@ class TextEditor:
         # Unbinding
         self.text_widget.unbind_class('Text', '<Control-o>')
         self.text_widget.unbind_class('Text', '<Control-a>')
+        self.text_widget.unbind_class('Text', '<Control-d>')
         self.text_widget.unbind_class('Text', '<<Undo>>')
         self.text_widget.unbind_class('Text', '<<Redo>>')
         self.text_widget.unbind_class('Text', '<<Cut>>')
@@ -97,14 +101,14 @@ class TextEditor:
         if self.conf_show_line_numbers:
             self.line_number_widget.update()
 
-        if self.conf_highlight_current_line:
-            self.highlight_current_line()
+        self.highlight_current_line()
 
         if self.text_widget.edit_modified():
             selected_tab = self.parent.notebook.index(self.parent.notebook.select())
             self.parent.notebook.tab(selected_tab, text='* ' + self.file_name)
 
         self.update_statusbar()
+        self.parent.update_title()
 
     def mouse(self, event=None):
         left_btn = 1
@@ -113,8 +117,7 @@ class TextEditor:
         scroll_down = 5
 
         if event.num == left_btn:
-            if self.conf_highlight_current_line:
-                self.highlight_current_line()
+            self.highlight_current_line()
             self.update_statusbar()
 
         if event.num in (scroll_up, scroll_down):
@@ -134,15 +137,16 @@ class TextEditor:
         self.parent.statusbar_current_row.set(self.parent.statusbar_text[2] + ': ' + str(line_row_index[1]))
 
     def highlight_current_line(self):
-        self.text_widget.tag_remove('current_line', '1.0', 'end')
-        # Where is the insert cursor
-        current_pos = self.text_widget.index('insert')
-        current_line = current_pos[:current_pos.find('.')]
-        start_index = str(current_line) + '.0'
-        end_index = str(int(current_line) + 1) + '.0'
-        # print(str(current_pos) + ' | ' + str(current_line) + ' | ' + str(start_index) + ' | ' + str(end_index))
-        self.text_widget.tag_add('current_line', start_index, end_index)
-        self.text_widget.tag_config('current_line', background='#e0e0e0')
+        if self.conf_highlight_current_line:
+            self.text_widget.tag_remove('current_line', '1.0', 'end')
+            # Where is the insert cursor
+            current_pos = self.text_widget.index('insert')
+            current_line = current_pos[:current_pos.find('.')]
+            start_index = str(current_line) + '.0'
+            end_index = str(int(current_line) + 1) + '.0'
+            # print(str(current_pos) + ' | ' + str(current_line) + ' | ' + str(start_index) + ' | ' + str(end_index))
+            self.text_widget.tag_add('current_line', start_index, end_index)
+            self.text_widget.tag_config('current_line', background='#e0e0e0')
         self.highlight_selected_text()
 
     def highlight_selected_text(self):
@@ -154,7 +158,7 @@ class TextEditor:
             # print('highlight_selected_text error')
             return
 
-    def unhighlight_currnt_line(self):
+    def unhighlight_current_line(self):
         self.text_widget.tag_remove('current_line', '1.0', 'end')
 
     def config_update(self, config):
@@ -190,7 +194,7 @@ class TextEditor:
         if self.conf_highlight_current_line:
             self.highlight_current_line()
         else:
-            self.unhighlight_currnt_line()
+            self.unhighlight_current_line()
 
         # Font metrics
         tab_width = self.conf_font.measure('a') * self.conf_tab_width

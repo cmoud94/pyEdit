@@ -34,7 +34,7 @@ class FontSelector:
         self.font = font.Font(size=9, weight='bold')
 
         self.root = Toplevel()
-        self.root.title('pyEdit Font Selector')
+        self.root.title('pyEdit - Font Selector')
         self.root.resizable(False, False)
 
         self.root.bind('<Expose>', self.on_expose)

@@ -13,13 +13,14 @@ class LineNumbers:
                                 relief='flat',
                                 bd=0,
                                 bg='#e0e0e0',
-                                fg='#000')
+                                fg='#000',
+                                spacing1=2,
+                                spacing2=2,
+                                spacing3=2)
         self.line_widget.grid(column=0, row=0, sticky='ns')
         self.line_num = ''
 
     def update(self, event=None):
-        # self.line_widget.update_idletasks()
-        # self.text_widget.update_idletasks()
         self.line_num = ''
         num_lines = self.text_widget.get('1.0', 'end').count('\n')
 
