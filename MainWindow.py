@@ -404,9 +404,6 @@ class PyEdit:
 
         selected_tab = self.get_selected_tab_index()
         if not save_as:
-            if self.editors[selected_tab].file_name == 'Document':
-                print('Document not edited yet.')
-                return
             if not self.editors[selected_tab].text_widget.edit_modified():
                 print('File already saved...')
                 return
@@ -426,10 +423,10 @@ class PyEdit:
             save_file.write(self.editors[selected_tab].text_widget.get('1.0', 'end'))
             save_file.close()
             print('File saved successfully!')
+            self.editors[selected_tab].text_widget.edit_modified(False)
         except IOError:
             print('IO error while saving or \'Cancel\' pressed.')
 
-        self.editors[selected_tab].text_widget.edit_modified(False)
         if not self.editors[selected_tab].text_widget.edit_modified():
             self.notebook.tab(selected_tab, text=self.editors[selected_tab].file_name)
 
