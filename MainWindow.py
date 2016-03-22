@@ -24,6 +24,9 @@ class PyEdit:
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(1, weight=1)
 
+        # Read config
+        self.config = Preferences(self).config_read_startup()
+
         # Menu init
         self.menu_bar = self.menu_init()
 
@@ -50,20 +53,17 @@ class PyEdit:
         self.notebook = self.notebook_init()
 
         # Status bar init
-        self.tab_width = IntVar()
-        self.current_line = IntVar()
-        self.current_col = IntVar()
+        self.statusbar_tab_width = StringVar()
+        self.statusbar_current_line = StringVar()
+        self.statusbar_current_row = StringVar()
+        self.statusbar_text = ['tab width', 'ln', 'row']
         self.statusbar = self.statusbar_init()
 
         # Shortcuts init
         self.shortcuts_init()
 
-        # Read config
-        self.config = Preferences(self).config_read_startup()
-
+        # Set geometry from last time
         self.root.geometry(self.config[8])
-
-        print('Preferences: ' + str(self.config))
 
     def menu_init(self):
         # Main menu_bar
@@ -270,6 +270,8 @@ class PyEdit:
                 widget.state(['pressed'])
                 widget.pressed_index = index
 
+            self.editors[self.get_selected_tab_index()].update_statusbar()
+
     def tab_btn_release(self, event=None):
         if self.notebook_no_tabs():
             return
@@ -294,14 +296,18 @@ class PyEdit:
         frame = Frame(self.root)
         frame.grid(column=0, row=2, sticky='nsew')
 
-        lbl_tab_width = Label(frame, text='tab width: ', relief='sunken')
+        lbl_tab_width = Label(frame, textvariable=self.statusbar_tab_width, relief='sunken')
         lbl_tab_width.grid(column=0, row=0, sticky='nsew', ipadx=2, ipady=2)
 
-        lbl_current_line = Label(frame, text='ln: ', relief='sunken')
+        lbl_current_line = Label(frame, textvariable=self.statusbar_current_line, relief='sunken')
         lbl_current_line.grid(column=1, row=0, sticky='nse', ipadx=2, ipady=2)
 
-        lbl_current_row = Label(frame, text='col: ', relief='sunken')
+        lbl_current_row = Label(frame, textvariable=self.statusbar_current_row, relief='sunken')
         lbl_current_row.grid(column=2, row=0, sticky='nse', ipadx=2, ipady=2)
+
+        self.statusbar_tab_width.set(self.statusbar_text[0] + ': ' + str(self.config[7]))
+        self.statusbar_current_line.set(self.statusbar_text[1] + ': None')
+        self.statusbar_current_row.set(self.statusbar_text[2] + ': None')
 
         return frame
 
@@ -361,6 +367,11 @@ class PyEdit:
         self.editors.remove(self.editors[selected_tab])
         self.clipboards.remove(self.clipboards[selected_tab])
         self.notebook.forget(selected_tab)
+
+        if self.notebook_no_tabs('', message_type='none'):
+            self.statusbar_tab_width.set(self.statusbar_text[0] + ': ' + str(self.config[7]))
+            self.statusbar_current_line.set(self.statusbar_text[1] + ': None')
+            self.statusbar_current_row.set(self.statusbar_text[2] + ': None')
 
     def open_file(self, event=None):
         file_path = filedialog.askopenfilename()
@@ -513,6 +524,8 @@ class PyEdit:
                 print('There\'s nothing to ' + message + ', open some file first!')
             elif message_type == 'message':
                 print(message)
+            elif message_type == 'none':
+                pass
             return True
         return False
 

@@ -104,6 +104,8 @@ class TextEditor:
             selected_tab = self.parent.notebook.index(self.parent.notebook.select())
             self.parent.notebook.tab(selected_tab, text='* ' + self.file_name)
 
+        self.update_statusbar()
+
     def mouse(self, event=None):
         left_btn = 1
         right_btn = 3
@@ -113,6 +115,7 @@ class TextEditor:
         if event.num == left_btn:
             if self.conf_highlight_current_line:
                 self.highlight_current_line()
+            self.update_statusbar()
 
         if event.num in (scroll_up, scroll_down):
             if self.conf_show_line_numbers:
@@ -123,6 +126,12 @@ class TextEditor:
         index = file_path.rfind('/')
         self.file_name = file_path[index + 1:]
         print('File name updated to \'' + self.file_name + '\'')
+
+    def update_statusbar(self, event=None):
+        line_row_index = self.text_widget.index('insert').split('.')
+        self.parent.statusbar_tab_width.set(self.parent.statusbar_text[0] + ': ' + str(self.parent.config[7]))
+        self.parent.statusbar_current_line.set(self.parent.statusbar_text[1] + ': ' + str(line_row_index[0]))
+        self.parent.statusbar_current_row.set(self.parent.statusbar_text[2] + ': ' + str(line_row_index[1]))
 
     def highlight_current_line(self):
         self.text_widget.tag_remove('current_line', '1.0', 'end')
@@ -191,10 +200,7 @@ class TextEditor:
                                 tabs=tab_width,
                                 tabstyle='wordprocessor')
 
-        font_width = self.conf_font.measure('a')
-        font_height = self.conf_font.metrics('linespace')
-        new_text_width = self.text_widget['width']
-        new_text_height = self.text_widget['height']
+        self.update_statusbar()
 
         if self.conf_show_line_numbers:
             self.line_number_widget.update()
