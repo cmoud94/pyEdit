@@ -49,11 +49,19 @@ class PyEdit:
 
         self.notebook = self.notebook_init()
 
+        # Status bar init
+        self.tab_width = IntVar()
+        self.current_line = IntVar()
+        self.current_col = IntVar()
+        self.statusbar = self.statusbar_init()
+
         # Shortcuts init
         self.shortcuts_init()
 
         # Read config
         self.config = Preferences(self).config_read_startup()
+
+        self.root.geometry(self.config[8])
 
         print('Preferences: ' + str(self.config))
 
@@ -282,6 +290,21 @@ class PyEdit:
         widget.state(['!pressed'])
         widget.pressed_index = None
 
+    def statusbar_init(self):
+        frame = Frame(self.root)
+        frame.grid(column=0, row=2, sticky='nsew')
+
+        lbl_tab_width = Label(frame, text='tab width: ', relief='sunken')
+        lbl_tab_width.grid(column=0, row=0, sticky='nsew', ipadx=2, ipady=2)
+
+        lbl_current_line = Label(frame, text='ln: ', relief='sunken')
+        lbl_current_line.grid(column=1, row=0, sticky='nse', ipadx=2, ipady=2)
+
+        lbl_current_row = Label(frame, text='col: ', relief='sunken')
+        lbl_current_row.grid(column=2, row=0, sticky='nse', ipadx=2, ipady=2)
+
+        return frame
+
     def shortcuts_init(self):
         # File shortcuts
         self.root.bind_all('<Control-n>', self.new_tab)
@@ -477,6 +500,9 @@ class PyEdit:
             for index in range(len(self.editors) - 1, -1, -1):
                 self.notebook.select(index)
                 self.close_tab()
+        conf = Preferences(self).config_read()
+        conf[8] = self.root.geometry()
+        Preferences(self).config_write(config=conf)
         self.root.destroy()
 
     def notebook_no_tabs(self, message='', message_type='word'):

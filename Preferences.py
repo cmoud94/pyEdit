@@ -6,8 +6,8 @@ class Preferences:
         self.parent = parent
         self.config = []
         self.config_keys = ['text_wrap', 'text_wrap_whole_words', 'show_line_numbers', 'highlight_current_line',
-                            'font_family', 'font_size', 'font_weight', 'tab_width']
-        self.config_default_values = [1, 1, 1, 1, 'Monospace', 10, 'normal', 4]
+                            'font_family', 'font_size', 'font_weight', 'tab_width', 'geometry']
+        self.config_default_values = [1, 1, 1, 1, 'Monospace', 10, 'normal', 4, '800x500+10+10']
 
         # text_wrap
         self.config.append(IntVar())
@@ -32,6 +32,9 @@ class Preferences:
 
         # Tab width
         self.config.append(IntVar())
+
+        # Geometry
+        self.config.append(StringVar())
 
         self.font_btn_text = StringVar()
 
@@ -176,10 +179,16 @@ class Preferences:
             if kv[0] == 'tab_width':
                 self.config[7].set(int(kv[1]))
                 ret.append(int(kv[1]))
+            if kv[0] == 'geometry':
+                self.config[8].set(kv[1])
+                ret.append(kv[1])
 
         self.font_btn_text.set(self.config[4].get() + ' | ' + str(self.config[5].get()))
 
-        self.update_wrap_chkbtns()
+        try:
+            self.update_wrap_chkbtns()
+        except TclError:
+            pass
 
         return ret
 
@@ -191,14 +200,16 @@ class Preferences:
         self.root.destroy()
         return config
 
-    def config_write(self, event=None, create_new=False, close=True):
+    def config_write(self, event=None, create_new=False, close=True, config=None):
         try:
             conf_file = open('config.conf', 'w')
         except IOError:
             print('Error while opening config file for write!')
             return
 
-        if not create_new:
+        if config is not None:
+            conf = [config[i] for i in range(len(config))]
+        elif not create_new:
             conf = [self.config[i].get() for i in range(len(self.config))]
         else:
             conf = [self.config_default_values[i] for i in range(len(self.config_default_values))]
