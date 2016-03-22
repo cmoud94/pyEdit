@@ -27,6 +27,8 @@ class Preferences:
                             'font_family', 'font_size', 'font_weight', 'tab_width', 'geometry']
         self.config_default_values = [1, 1, 1, 1, 'Monospace', 10, 'normal', 4, '800x500+10+10']
 
+        self.os = self.parent.os
+
         # text_wrap
         self.config.append(IntVar())
 
