@@ -16,7 +16,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import Utils
 from FontSelector import *
 
 
@@ -133,7 +132,7 @@ class Preferences:
                                command=self.font_config)
         self.btn_font.grid(column=0, row=0, sticky='nsew', padx=5, pady=5)
 
-        # Close button
+        # Buttons
         self.frame_buttons = Frame(self.root)
         self.frame_buttons.grid(column=0, row=5, sticky='se', padx=5, pady=5)
 
@@ -156,22 +155,18 @@ class Preferences:
         config_file = None
         try:
             config_file = open('config.conf', 'r')
-
             config_file.seek(0, 2)
             size = config_file.tell()
             config_file.seek(0, 0)
             config = config_file.read(size)
-
             config_file.close()
-
-            if size == 0 or config_file is None:
+            if size == 0:
                 return None
         except IOError:
             print('Error while reading config file!')
             return
 
         config_list = config.splitlines()
-        config_list.remove(config_list[-1])
         ret = []
 
         for i in range(len(config_list)):
@@ -239,7 +234,6 @@ class Preferences:
         for i in range(len(conf)):
             conf_file.write(self.config_keys[i] + '=' + str(conf[i]) + '\n')
 
-        conf_file.write('\n')
         conf_file.close()
 
         self.parent.config = conf

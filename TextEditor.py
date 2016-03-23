@@ -50,10 +50,7 @@ class TextEditor:
                                 selectbackground='LightBlue3',
                                 undo=True,
                                 maxundo=-1,
-                                autoseparator=True,
-                                spacing1=2,
-                                spacing2=2,
-                                spacing3=2)
+                                autoseparator=True)
         self.text_widget.grid(column=1, row=0, sticky='nsew')
         self.text_widget.delete('1.0', 'end')
         self.text_widget.insert('end', content)
@@ -65,15 +62,13 @@ class TextEditor:
         self.scroll_bar.grid(column=2, row=0, sticky='ns')
         self.text_widget.config(yscrollcommand=self.scroll_bar.set)
 
-        if self.conf_show_line_numbers:
-            self.line_number_widget = LineNumbers(self.frame, self.text_widget)
-            self.line_number_widget.update()
-        else:
-            self.line_number_widget = None
+        self.line_number_widget = None
 
         self.parent.notebook.add(self.frame, text=self.file_name, compound='left')
         self.index = self.parent.notebook.index(self.parent.notebook.tabs()[-1])
         self.parent.notebook.select(self.index)
+
+        self.config_update(config)
 
         self.text_widget.focus_set()
 
@@ -94,14 +89,9 @@ class TextEditor:
 
         # Shortcuts init
         self.text_widget.bind('<KeyRelease>', self.key)
-        if self.conf_show_line_numbers:
-            self.text_widget.bind('<Configure>', self.line_number_widget.update)
         self.text_widget.bind('<ButtonRelease>', self.mouse)
         self.text_widget.bind('<B1-Motion>', self.mouse_motion)
-
         self.text_widget.bind('<Control-a>', self.select_all)
-
-        self.config_update(config)
 
     def scroll_update(self, *event):
         if 'moveto' in event[0]:
@@ -184,29 +174,30 @@ class TextEditor:
         self.text_widget.tag_remove('current_line', '1.0', 'end')
 
     def config_update(self, config):
-        if config is not None:
-            self.conf_text_wrap = True if config[0] == 1 else False
-            if self.conf_text_wrap:
-                self.conf_text_wrap_mode = 'word' if config[1] == 1 else 'char'
-            else:
-                self.conf_text_wrap_mode = 'none'
-            self.conf_show_line_numbers = True if config[2] == 1 else False
-            self.conf_highlight_current_line = True if config[3] == 1 else False
-            self.conf_font = font.Font(family=config[4], size=config[5], weight=config[6])
-            self.conf_tab_width = config[7]
+        self.conf_text_wrap = True if config[0] == 1 else False
+        if self.conf_text_wrap:
+            self.conf_text_wrap_mode = 'word' if config[1] == 1 else 'char'
         else:
-            self.conf_text_wrap_mode = 'word'
-            self.conf_show_line_numbers = True
-            self.conf_highlight_current_line = True
-            self.conf_font = font.Font(family='Monospace', size=10, weight='normal')
-            self.conf_tab_width = 4
+            self.conf_text_wrap_mode = 'none'
+        self.conf_show_line_numbers = True if config[2] == 1 else False
+        self.conf_highlight_current_line = True if config[3] == 1 else False
+        self.conf_font = font.Font(family=config[4], size=config[5], weight=config[6])
+        self.conf_tab_width = config[7]
+
+        # Font metrics
+        tab_width = self.conf_font.measure('a') * self.conf_tab_width
+
+        self.text_widget.config(wrap=self.conf_text_wrap_mode,
+                                font=self.conf_font,
+                                tabs=tab_width,
+                                tabstyle='wordprocessor')
 
         if self.conf_show_line_numbers:
             if self.line_number_widget is None:
                 self.line_number_widget = LineNumbers(self.frame, self.text_widget)
                 self.text_widget.bind('<Configure>', self.line_number_widget.update)
-            self.line_number_widget.update()
             self.line_number_widget.line_widget.config(font=self.conf_font)
+            self.line_number_widget.update()
         else:
             if self.line_number_widget is not None:
                 self.line_number_widget.delete()
@@ -218,18 +209,7 @@ class TextEditor:
         else:
             self.unhighlight_current_line()
 
-        # Font metrics
-        tab_width = self.conf_font.measure('a') * self.conf_tab_width
-
-        self.text_widget.config(wrap=self.conf_text_wrap_mode,
-                                font=self.conf_font,
-                                tabs=tab_width,
-                                tabstyle='wordprocessor')
-
         self.update_statusbar()
-
-        if self.conf_show_line_numbers:
-            self.line_number_widget.update()
 
         window_geometry = self.parent.root.geometry()
         self.parent.root.geometry(window_geometry)

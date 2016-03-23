@@ -47,9 +47,6 @@ class Help:
         self.text_widget = Text(self.root,
                                 relief='flat',
                                 bd=0,
-                                spacing1=2,
-                                spacing2=2,
-                                spacing3=2,
                                 font=self.font)
         self.text_widget.grid(column=0, row=0, sticky='nsew')
         self.text_widget.delete('1.0', 'end')

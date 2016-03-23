@@ -44,10 +44,10 @@ class Tooltip:
         self.id = self.parent.after(self.timeout, self.showtip)
 
     def unschedule(self):
-        id = self.id
+        iD = self.id
         self.id = None
-        if id:
-            self.parent.after_cancel(id)
+        if iD:
+            self.parent.after_cancel(iD)
 
     def showtip(self):
         if self.tipwindow:

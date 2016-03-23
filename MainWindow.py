@@ -45,7 +45,7 @@ class PyEdit:
         # Window init
         self.root = root
         self.root.title('pyEdit')
-        self.root.minsize(400, 300)
+        self.root.minsize(400, 250)
         self.root.option_add('*tearOff', FALSE)
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(1, weight=1)
@@ -554,7 +554,7 @@ class PyEdit:
         Preferences(self)
 
     def config_update(self):
-        if self.notebook_no_tabs('Nothing to update...', 'message'):
+        if self.notebook_no_tabs('', 'none'):
             return
 
         print('config_update: ' + str(self.config))
