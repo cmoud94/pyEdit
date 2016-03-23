@@ -573,7 +573,8 @@ class PyEdit:
             self.editors[i].config_update(self.config)
 
         selected_tab = self.get_selected_tab_index()
-        self.editors[selected_tab].text_widget.focus_force()
+        if selected_tab is not None:
+            self.editors[selected_tab].text_widget.focus_force()
 
     def update_title(self, event=None):
         if self.notebook_no_tabs('', 'none'):
@@ -630,7 +631,11 @@ class PyEdit:
     def get_selected_tab_index(self, event=None):
         if self.notebook_no_tabs('work with'):
             return None
-        return self.notebook.index(self.notebook.select())
+        try:
+            index = self.notebook.index(self.notebook.select())
+        except AttributeError:
+            index = None
+        return index
 
     def debug_file(self, event=None):
         if self.notebook_no_tabs('debug'):
@@ -645,7 +650,7 @@ class PyEdit:
     def get_supported_file_extensions(self):
         sfe = []
         try:
-            file = open('supported_file_extensions.txt', 'r')
+            file = open('src/supported_file_extensions.txt', 'r')
             file.seek(0, 2)
             size = file.tell()
             file.seek(0, 0)

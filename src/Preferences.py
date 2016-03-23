@@ -159,7 +159,7 @@ class Preferences:
     def config_read(self):
         config_file = None
         try:
-            config_file = open('config.conf', 'r')
+            config_file = open('src/config.conf', 'r')
             config_file.seek(0, 2)
             size = config_file.tell()
             config_file.seek(0, 0)
@@ -236,7 +236,7 @@ class Preferences:
             print('Default geometry set...')
 
         try:
-            conf_file = open('config.conf', 'w')
+            conf_file = open('src/config.conf', 'w')
 
             for i in range(len(conf)):
                 conf_file.write(self.config_keys[i] + '=' + str(conf[i]) + '\n')
