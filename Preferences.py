@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+import Utils
 from FontSelector import *
 
 
@@ -70,9 +71,9 @@ class Preferences:
         self.root.option_add('*tearOff', FALSE)
         self.root.columnconfigure(0, weight=1)
 
-        self.root.bind('<Expose>', self.on_expose)
         self.root.bind('<ButtonRelease-1>', lambda e: self.config_write(event=e, close=False))
-        self.root.wm_protocol('WM_DELETE_WINDOW', self.on_close)
+        self.root.bind('<Expose>', lambda e: Utils.on_expose(self))
+        self.root.wm_protocol('WM_DELETE_WINDOW', lambda: Utils.on_close(self))
 
         # Text wrapping
         self.lf_text_wrapping = LabelFrame(self.root, text='Text wrapping', font=self.font, relief='flat')
@@ -143,7 +144,7 @@ class Preferences:
 
         self.btn_close = Button(self.frame_buttons,
                                 text='Close',
-                                command=self.on_close)
+                                command=lambda: Utils.on_close(self))
         self.btn_close.grid(column=1, row=0, sticky='se', padx=5, pady=5)
 
         # Read config
@@ -243,7 +244,7 @@ class Preferences:
 
         self.parent.config = conf
         if close:
-            self.on_close()
+            Utils.on_close(self)
         else:
             self.config_read()
         self.parent.config_update()
@@ -256,24 +257,3 @@ class Preferences:
             self.chkbtn_text_wrap_mode.config(state='disable')
         elif self.chkbtn_text_wrap_enable.var.get() == 1:
             self.chkbtn_text_wrap_mode.config(state='normal')
-
-    def on_expose(self, event=None):
-        if self.parent.os != 'Linux':
-            return
-        # Center widget on top of parent window
-        parent_x = self.parent.root.winfo_x()
-        parent_y = self.parent.root.winfo_y()
-        parent_w = self.parent.root.winfo_width()
-        parent_x_mid = parent_x + (parent_w / 2)
-        root_x = parent_x_mid - (self.root.winfo_width() / 2)
-        root_y = parent_y
-        self.root.geometry(
-            str(self.root.winfo_width()) + 'x' + str(self.root.winfo_height()) + '+' + str(int(root_x)) + '+' + str(
-                int(root_y)))
-
-        self.root.grab_set()
-        self.root.transient(self.parent.root)
-
-    def on_close(self, event=None):
-        self.root.grab_release()
-        self.root.destroy()

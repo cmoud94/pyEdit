@@ -23,6 +23,7 @@ from tkinter.ttk import Separator, Notebook
 from About import *
 from Help import *
 from Preferences import *
+from Search import *
 from TextEditor import *
 from Tooltip import *
 
@@ -128,8 +129,8 @@ class PyEdit:
         # Search/Replace menu
         menu_search = Menu(menu_bar)
 
-        menu_search.add_command(label='Find', accelerator='Ctrl+F', command='')
-        menu_search.add_command(label='Replace', accelerator='Ctrl+R', command='')
+        menu_search.add_command(label='Find', accelerator='Ctrl+F', command=self.find)
+        menu_search.add_command(label='Replace', accelerator='Ctrl+R', command=self.find_and_replace)
 
         menu_bar.add_cascade(menu=menu_search, label='Search')
 
@@ -353,8 +354,8 @@ class PyEdit:
         self.root.bind_all('<Control-period>', self.preferences)
 
         # Search shortcuts
-        self.root.bind_all('<Control-f>', '')
-        self.root.bind_all('<Control-r>', '')
+        self.root.bind_all('<Control-f>', self.find)
+        self.root.bind_all('<Control-r>', self.find_and_replace)
 
         # Help options
         self.root.bind_all('<F1>', self.help)
@@ -565,13 +566,15 @@ class PyEdit:
         text = self.notebook.tab(selected_tab).get('text')
         self.root.title('pyEdit - ' + text)
 
-    # TODO: Dodelat
     def find(self, event=None):
-        pass
+        if self.notebook_no_tabs('find'):
+            return
+        Search(self, 'find')
 
-    # TODO: Dodelat
     def find_and_replace(self, event=None):
-        pass
+        if self.notebook_no_tabs('replace'):
+            return
+        Search(self, 'replace')
 
     def help(self, event=None):
         Help(self)
