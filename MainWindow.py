@@ -611,17 +611,20 @@ class PyEdit:
         self.root.destroy()
 
     def notebook_no_tabs(self, message='', message_type='word'):
-        if self.notebook.tabs() == ():
-            if message_type == 'word':
-                if message == '':
-                    return True
-                print('There\'s nothing to ' + message + ', open some file first!')
-            elif message_type == 'message':
-                print(message)
-            elif message_type == 'none':
-                pass
-            return True
-        return False
+        try:
+            if self.notebook.tabs() == ():
+                if message_type == 'word':
+                    if message == '':
+                        return True
+                    print('There\'s nothing to ' + message + ', open some file first!')
+                elif message_type == 'message':
+                    print(message)
+                elif message_type == 'none':
+                    pass
+                return True
+            return False
+        except AttributeError:
+            return
 
     def get_selected_tab_index(self, event=None):
         if self.notebook_no_tabs('work with'):
