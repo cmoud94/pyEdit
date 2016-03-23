@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from tkinter import font
 
-from LineNumbers import *
+from src.LineNumbers import *
 
 
 class TextEditor:

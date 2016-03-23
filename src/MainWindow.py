@@ -22,10 +22,11 @@ from tkinter.ttk import Separator, Notebook
 
 from About import *
 from Help import *
-from Preferences import *
 from Search import *
 from TextEditor import *
 from Tooltip import *
+
+from src.Preferences import *
 
 
 class PyEdit:

@@ -20,7 +20,7 @@ from tkinter import *
 from tkinter import messagebox
 from tkinter.ttk import Style
 
-import Utils
+from src import Utils
 
 
 class Search:
