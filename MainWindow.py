@@ -236,7 +236,7 @@ class PyEdit:
         button_search = Button(frame_toolbar,
                                image=self.img_search,
                                relief='flat',
-                               command='')
+                               command=self.find)
         button_search.grid(column=11, row=0, sticky='nsew')
 
         tooltip_search = Tooltip(button_search, 'Search')
@@ -245,7 +245,7 @@ class PyEdit:
         button_replace = Button(frame_toolbar,
                                 image=self.img_replace,
                                 relief='flat',
-                                command='')
+                                command=self.find_and_replace)
         button_replace.grid(column=12, row=0, sticky='nsew')
 
         tooltip_replace = Tooltip(button_replace, 'Replace')
@@ -433,6 +433,7 @@ class PyEdit:
 
     def save_file(self, event=None, save_as=False):
         if self.notebook_no_tabs('save'):
+            messagebox.showwarning('pyEdit - warning', 'Can\'t save \'nothing\'.')
             return
 
         selected_tab = self.get_selected_tab_index()
@@ -470,6 +471,7 @@ class PyEdit:
 
     def undo(self, event=None):
         if self.notebook_no_tabs('No tabs, no undo...', 'message'):
+            messagebox.showwarning('pyEdit - warning', 'Can\'t undo \'nothing\'.')
             return
 
         selected_tab = self.get_selected_tab_index()
@@ -489,6 +491,7 @@ class PyEdit:
 
     def redo(self, event=None):
         if self.notebook_no_tabs('No tabs, no redo...', 'message'):
+            messagebox.showwarning('pyEdit - warning', 'Can\'t redo \'nothing\'.')
             return
 
         selected_tab = self.get_selected_tab_index()
@@ -507,6 +510,7 @@ class PyEdit:
 
     def cut(self, event=None):
         if self.notebook_no_tabs('No tabs, nothing to cut...', 'message'):
+            messagebox.showwarning('pyEdit - warning', 'Can\'t cut from \'nothing\'.')
             return
 
         try:
@@ -523,6 +527,7 @@ class PyEdit:
 
     def copy(self, event=None):
         if self.notebook_no_tabs('No tabs, nothing to copy...', 'message'):
+            messagebox.showwarning('pyEdit - warning', 'Can\'t copy from \'nothing\'.')
             return
 
         try:
@@ -538,6 +543,7 @@ class PyEdit:
 
     def paste(self, event=None):
         if self.notebook_no_tabs('No tabs, nothing to paste...', 'message'):
+            messagebox.showwarning('pyEdit - warning', 'Can\'t paste into \'nothing\'.')
             return
 
         selected_tab = self.get_selected_tab_index()
@@ -553,7 +559,10 @@ class PyEdit:
     def preferences(self, event=None):
         Preferences(self)
 
-    def config_update(self):
+    def config_update(self, default_geometry=False):
+        if default_geometry:
+            self.root.geometry(self.config[8])
+
         if self.notebook_no_tabs('', 'none'):
             return
 
@@ -575,11 +584,13 @@ class PyEdit:
 
     def find(self, event=None):
         if self.notebook_no_tabs('find'):
+            messagebox.showwarning('pyEdit - warning', 'Can\'t find in \'nothing\'.')
             return
         Search(self, 'find')
 
     def find_and_replace(self, event=None):
         if self.notebook_no_tabs('replace'):
+            messagebox.showwarning('pyEdit - warning', 'Can\'t replace in \'nothing\'.')
             return
         Search(self, 'replace')
 

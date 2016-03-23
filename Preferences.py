@@ -25,7 +25,7 @@ class Preferences:
         self.config = []
         self.config_keys = ['text_wrap', 'text_wrap_whole_words', 'show_line_numbers', 'highlight_current_line',
                             'font_family', 'font_size', 'font_weight', 'tab_width', 'geometry']
-        self.config_default_values = [1, 1, 1, 1, 'Monospace', 10, 'normal', 4, '800x500+10+10']
+        self.config_default_values = [1, 1, 1, 1, 'Monospace', 10, 'normal', 4, '800x500+0+0']
 
         self.os = self.parent.os
 
@@ -70,7 +70,7 @@ class Preferences:
         self.root.option_add('*tearOff', FALSE)
         self.root.columnconfigure(0, weight=1)
 
-        self.root.bind('<ButtonRelease-1>', lambda e: self.config_write(event=e, close=False))
+        self.root.bind('<ButtonRelease-1>', lambda e: self.config_write(close=False))
         self.root.bind('<Expose>', lambda e: Utils.on_expose(self))
         self.root.wm_protocol('WM_DELETE_WINDOW', lambda: Utils.on_close(self))
 
@@ -136,15 +136,20 @@ class Preferences:
         self.frame_buttons = Frame(self.root)
         self.frame_buttons.grid(column=0, row=5, sticky='se', padx=5, pady=5)
 
+        self.btn_default_geometry = Button(self.frame_buttons,
+                                           text='Default geometry',
+                                           command=lambda: self.config_write(default_geometry=True, close=False))
+        self.btn_default_geometry.grid(column=0, row=0, sticky='se', padx=5, pady=5)
+
         self.btn_default_config = Button(self.frame_buttons,
                                          text='Default',
                                          command=lambda: self.config_write(create_new=True, close=False))
-        self.btn_default_config.grid(column=0, row=0, sticky='se', padx=5, pady=5)
+        self.btn_default_config.grid(column=1, row=0, sticky='se', padx=5, pady=5)
 
         self.btn_close = Button(self.frame_buttons,
                                 text='Close',
                                 command=lambda: Utils.on_close(self))
-        self.btn_close.grid(column=1, row=0, sticky='se', padx=5, pady=5)
+        self.btn_close.grid(column=2, row=0, sticky='se', padx=5, pady=5)
 
         # Read config
         if self.config_read() is None:
@@ -216,13 +221,7 @@ class Preferences:
         self.root.destroy()
         return config
 
-    def config_write(self, event=None, create_new=False, close=True, config=None):
-        try:
-            conf_file = open('config.conf', 'w')
-        except IOError:
-            print('Error while opening config file for write!')
-            return
-
+    def config_write(self, event=None, create_new=False, close=True, config=None, default_geometry=False):
         if config is not None:
             conf = [config[i] for i in range(len(config))]
         elif not create_new:
@@ -231,10 +230,21 @@ class Preferences:
             conf = [self.config_default_values[i] for i in range(len(self.config_default_values))]
             print('Generating default config file...')
 
-        for i in range(len(conf)):
-            conf_file.write(self.config_keys[i] + '=' + str(conf[i]) + '\n')
+        if default_geometry:
+            conf[8] = self.config_default_values[8]
+            self.parent.config_update(default_geometry=True)
+            print('Default geometry set...')
 
-        conf_file.close()
+        try:
+            conf_file = open('config.conf', 'w')
+
+            for i in range(len(conf)):
+                conf_file.write(self.config_keys[i] + '=' + str(conf[i]) + '\n')
+
+            conf_file.close()
+        except IOError:
+            print('Error while opening config file for write!')
+            return
 
         self.parent.config = conf
         if close:
