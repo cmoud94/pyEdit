@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import platform
-from tkinter import filedialog, messagebox
+from tkinter import filedialog
 from tkinter.ttk import Separator, Notebook
 
 from About import *
@@ -372,22 +372,32 @@ class PyEdit:
         self.clipboards.append('')
         self.update_title()
 
-    def close_tab(self, event=None):
+    def close_tab(self, event=None, app_exit=False):
         if self.notebook_no_tabs('close'):
             return
 
         selected_tab = self.get_selected_tab_index()
         if self.editors[selected_tab].text_widget.edit_modified():
-            response = messagebox.askquestion('File edited',
-                                              'Save file before closing?',
-                                              icon='question',
-                                              type='yesnocancel',
-                                              default='cancel',
-                                              parent=self.root)
-            if response == 'yes':
-                self.save_file()
-            elif response == 'cancel':
-                return
+            if not app_exit:
+                response = messagebox.askquestion('File edited',
+                                                  'Save file before closing?',
+                                                  icon='question',
+                                                  type='yesnocancel',
+                                                  default='cancel',
+                                                  parent=self.root)
+                if response == 'yes':
+                    self.save_file()
+                elif response == 'cancel':
+                    return
+            else:
+                response = messagebox.askquestion('File edited',
+                                                  'Save file before closing?',
+                                                  icon='question',
+                                                  type='yesno',
+                                                  default='yes',
+                                                  parent=self.root)
+                if response == 'yes':
+                    self.save_file()
 
         print('Closing tab \'' + str(self.editors[selected_tab].file_name) + '\'')
 
@@ -415,12 +425,9 @@ class PyEdit:
             file.seek(0, 2)
             size = file.tell()
             file.seek(0, 0)
-
             content = file.read(size - 1)
-
-            self.new_tab(file_path=file_path, content=content)
-
             file.close()
+            self.new_tab(file_path=file_path, content=content)
         except IOError:
             print('File not found or \'Cancel\' pressed.')
 
@@ -586,7 +593,7 @@ class PyEdit:
         if not self.notebook_no_tabs('Nothing to close, destroying immediately!', 'message'):
             for index in range(len(self.editors) - 1, -1, -1):
                 self.notebook.select(index)
-                self.close_tab()
+                self.close_tab(app_exit=True)
         conf = Preferences(self).config_read()
         conf[8] = self.root.geometry()
         Preferences(self).config_write(config=conf)

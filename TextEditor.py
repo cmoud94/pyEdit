@@ -93,10 +93,11 @@ class TextEditor:
         self.text_widget.unbind_class('Text', '<<Paste>>')
 
         # Shortcuts init
-        self.text_widget.bind('<KeyRelease>', self.key_release)
+        self.text_widget.bind('<KeyRelease>', self.key)
         if self.conf_show_line_numbers:
             self.text_widget.bind('<Configure>', self.line_number_widget.update)
         self.text_widget.bind('<ButtonRelease>', self.mouse)
+        self.text_widget.bind('<B1-Motion>', self.mouse_motion)
 
         self.text_widget.bind('<Control-a>', self.select_all)
 
@@ -112,7 +113,7 @@ class TextEditor:
             if self.conf_show_line_numbers:
                 self.line_number_widget.line_widget.yview_scroll(event[1], event[2])
 
-    def key_release(self, event=None):
+    def key(self, event=None):
         if event.keysym in self.banned_event_keys:
             return
 
@@ -141,6 +142,9 @@ class TextEditor:
         if event.num in (scroll_up, scroll_down):
             if self.conf_show_line_numbers:
                 self.line_number_widget.line_widget.yview_moveto(self.text_widget.yview()[0])
+
+    def mouse_motion(self, event=None):
+        self.highlight_selected_text()
 
     def update_file_name(self, file_path):
         self.file_path = file_path

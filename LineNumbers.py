@@ -39,6 +39,8 @@ class LineNumbers:
         self.line_num = ''
 
     def update(self, event=None):
+        self.text_widget.update_idletasks()
+        self.line_widget.update_idletasks()
         self.line_num = ''
         num_lines = self.text_widget.get('1.0', 'end').count('\n')
 
@@ -64,14 +66,14 @@ class LineNumbers:
                     while first_char_bbox[1] != last_char_bbox[1]:
                         first_char_bbox[1] += first_char_bbox[3]
                         self.line_num += '\n'
-            except Exception:
+            except KeyboardInterrupt:
                 return
 
         self.line_widget.config(state='normal')
         self.line_widget.delete('1.0', 'end')
         self.line_widget.insert('1.0', self.line_num)
         self.line_widget.config(state='disabled')
-        self.text_widget.see('1.0')
+        # self.text_widget.see('1.0')
 
     def delete(self):
         self.line_widget.grid_forget()
