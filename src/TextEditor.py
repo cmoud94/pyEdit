@@ -62,6 +62,8 @@ class TextEditor:
         self.scroll_bar.grid(column=2, row=0, sticky='ns')
         self.text_widget.config(yscrollcommand=self.scroll_bar.set)
 
+        self.scroll_bar_horizontal = None
+
         self.line_number_widget = None
 
         self.parent.notebook.add(self.frame, text=self.file_name, compound='left')
@@ -191,6 +193,17 @@ class TextEditor:
                                 font=self.conf_font,
                                 tabs=tab_width,
                                 tabstyle='wordprocessor')
+
+        if not self.conf_text_wrap:
+            if self.scroll_bar_horizontal is None:
+                self.scroll_bar_horizontal = Scrollbar(self.frame, bd=0, orient='horizontal',
+                                                       command=self.text_widget.xview)
+                self.scroll_bar_horizontal.grid(column=1, row=1, sticky='ew')
+                self.text_widget.config(xscrollcommand=self.scroll_bar_horizontal.set)
+        else:
+            if self.scroll_bar_horizontal is not None:
+                self.scroll_bar_horizontal.grid_forget()
+                self.scroll_bar_horizontal = None
 
         if self.conf_show_line_numbers:
             if self.line_number_widget is None:
