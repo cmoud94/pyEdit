@@ -436,7 +436,6 @@ class PyEdit:
 
     def save_file(self, event=None, save_as=False):
         if self.notebook_no_tabs('save'):
-            messagebox.showwarning('pyEdit - warning', 'Can\'t save \'nothing\'.')
             return
 
         selected_tab = self.get_selected_tab_index()
@@ -475,7 +474,6 @@ class PyEdit:
 
     def undo(self, event=None):
         if self.notebook_no_tabs('No tabs, no undo...', 'message'):
-            messagebox.showwarning('pyEdit - warning', 'Can\'t undo \'nothing\'.')
             return
 
         selected_tab = self.get_selected_tab_index()
@@ -495,7 +493,6 @@ class PyEdit:
 
     def redo(self, event=None):
         if self.notebook_no_tabs('No tabs, no redo...', 'message'):
-            messagebox.showwarning('pyEdit - warning', 'Can\'t redo \'nothing\'.')
             return
 
         selected_tab = self.get_selected_tab_index()
@@ -514,7 +511,6 @@ class PyEdit:
 
     def cut(self, event=None):
         if self.notebook_no_tabs('No tabs, nothing to cut...', 'message'):
-            messagebox.showwarning('pyEdit - warning', 'Can\'t cut from \'nothing\'.')
             return
 
         try:
@@ -531,7 +527,6 @@ class PyEdit:
 
     def copy(self, event=None):
         if self.notebook_no_tabs('No tabs, nothing to copy...', 'message'):
-            messagebox.showwarning('pyEdit - warning', 'Can\'t copy from \'nothing\'.')
             return
 
         try:
@@ -547,7 +542,6 @@ class PyEdit:
 
     def paste(self, event=None):
         if self.notebook_no_tabs('No tabs, nothing to paste...', 'message'):
-            messagebox.showwarning('pyEdit - warning', 'Can\'t paste into \'nothing\'.')
             return
 
         selected_tab = self.get_selected_tab_index()
@@ -589,13 +583,11 @@ class PyEdit:
 
     def find(self, event=None):
         if self.notebook_no_tabs('find'):
-            messagebox.showwarning('pyEdit - warning', 'Can\'t find in \'nothing\'.')
             return
         Search(self, 'find')
 
     def find_and_replace(self, event=None):
         if self.notebook_no_tabs('replace'):
-            messagebox.showwarning('pyEdit - warning', 'Can\'t replace in \'nothing\'.')
             return
         Search(self, 'replace')
 
