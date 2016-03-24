@@ -1,8 +1,0 @@
-[Desktop Entry]
-Name=pyEdit
-Comment=Lightweight IDE
-Terminal=false
-Icon=pyEdit
-Exec=$USER/.local/bin/pyEdit
-Type=Application
-Categories=IDE;Development
