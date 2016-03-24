@@ -22,12 +22,12 @@ from os.path import expanduser
 from tkinter import filedialog
 from tkinter.ttk import Separator, Notebook
 
-from About import *
-from Help import *
-from Preferences import *
-from Search import *
-from TextEditor import *
-from Tooltip import *
+from pyEdit.About import *
+from pyEdit.Help import *
+from pyEdit.Preferences import *
+from pyEdit.Search import *
+from pyEdit.TextEditor import *
+from pyEdit.Tooltip import *
 
 
 class PyEdit:
@@ -565,7 +565,7 @@ class PyEdit:
         if self.notebook_no_tabs('', 'none'):
             return
 
-        print('config_update: ' + str(self.config))
+        # print('config_update: ' + str(self.config))
 
         for i in range(len(self.editors)):
             self.editors[i].config_update(self.config)
