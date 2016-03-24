@@ -20,7 +20,7 @@ from tkinter import *
 from tkinter import font
 from tkinter.ttk import Style
 
-from src import Utils
+import Utils
 
 
 class Help:
@@ -60,7 +60,7 @@ class Help:
     def get_content(self):
         text = ''
         try:
-            file = open('src/help.txt', 'r')
+            file = open(self.parent.current_dir + '/help.txt', 'r')
             file.seek(0, 2)
             size = file.tell()
             file.seek(0, 0)

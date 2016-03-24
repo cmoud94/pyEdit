@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+import os
 import platform
 from os.path import expanduser
 from tkinter import filedialog
@@ -23,11 +24,10 @@ from tkinter.ttk import Separator, Notebook
 
 from About import *
 from Help import *
+from Preferences import *
 from Search import *
 from TextEditor import *
 from Tooltip import *
-
-from src.Preferences import *
 
 
 class PyEdit:
@@ -36,9 +36,10 @@ class PyEdit:
         self.clipboards = []
         self.config = []
 
-        self.supported_file_extensions = self.get_supported_file_extensions()
-
         self.os = platform.system()
+        self.current_dir = os.path.dirname(os.path.abspath(__file__))
+
+        self.supported_file_extensions = self.get_supported_file_extensions()
 
         # Style init
         self.style = Style()
@@ -645,7 +646,7 @@ class PyEdit:
     def get_supported_file_extensions(self):
         sfe = []
         try:
-            file = open('src/supported_file_extensions.txt', 'r')
+            file = open(self.current_dir + '/supported_file_extensions.txt', 'r')
             file.seek(0, 2)
             size = file.tell()
             file.seek(0, 0)

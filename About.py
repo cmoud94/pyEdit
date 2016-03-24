@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from tkinter import *
 from tkinter.ttk import Style
 
-from src import Utils
+import Utils
 
 
 class About:

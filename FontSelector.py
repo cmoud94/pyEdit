@@ -21,7 +21,7 @@ from tkinter import *
 from tkinter import font
 from tkinter.ttk import Style
 
-from src import Utils
+import Utils
 
 
 class FontSelector:
