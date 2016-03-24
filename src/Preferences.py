@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from src.pyEdit.FontSelector import *
+from src.FontSelector import *
 
 
 class Preferences:
@@ -26,7 +26,7 @@ class Preferences:
         self.config_keys = ['text_wrap', 'text_wrap_whole_words', 'show_line_numbers', 'highlight_current_line',
                             'font_family', 'font_size', 'font_weight', 'tab_width', 'geometry']
         self.config_default_values = [1, 1, 1, 1, 'Monospace', 10, 'normal', 4, '800x500+0+0']
-        self.config_file_path = 'src/pyEdit/config.conf'
+        self.config_file_path = 'src/config.conf'
 
         self.os = self.parent.os
 

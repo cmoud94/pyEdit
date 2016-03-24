@@ -20,7 +20,7 @@ from tkinter import *
 from tkinter import font
 from tkinter.ttk import Style
 
-from src.pyEdit import Utils
+from src import Utils
 
 
 class Help:
