@@ -11,9 +11,9 @@ setup(
     author_email='cmoud94@gmail.com',
     url='https://github.com/cmoud94/pyEdit',
     license='GPLv3 license',
-    package_dir={'pyEdit': 'src'},
+    package_dir={'pyEdit': 'src/pyEdit'},
     packages=['pyEdit', ],
-    data_files=[('share/icons/hicolor/scalable/apps', ['pyEdit.png']),
+    data_files=[('share/icons/hicolor/scalable/apps', ['pyEdit.svg']),
                 ('share/applications', ['desktop/pyEdit.desktop'])],
     scripts=['pyEdit']
 )

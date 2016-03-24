@@ -26,7 +26,7 @@ from Search import *
 from TextEditor import *
 from Tooltip import *
 
-from src.Preferences import *
+from src.pyEdit.Preferences import *
 
 
 class PyEdit:
@@ -650,7 +650,7 @@ class PyEdit:
     def get_supported_file_extensions(self):
         sfe = []
         try:
-            file = open('src/supported_file_extensions.txt', 'r')
+            file = open('src/pyEdit/supported_file_extensions.txt', 'r')
             file.seek(0, 2)
             size = file.tell()
             file.seek(0, 0)
