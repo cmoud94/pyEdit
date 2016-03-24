@@ -60,7 +60,7 @@ class Help:
     def get_content(self):
         text = ''
         try:
-            file = open('help.txt', 'r')
+            file = open('src/help.txt', 'r')
             file.seek(0, 2)
             size = file.tell()
             file.seek(0, 0)

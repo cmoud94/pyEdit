@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import platform
+from os.path import expanduser
 from tkinter import filedialog
 from tkinter.ttk import Separator, Notebook
 
@@ -419,7 +420,8 @@ class PyEdit:
     def open_file(self, event=None):
         file_path = filedialog.askopenfilename(title='Open file...',
                                                defaultextension=self.supported_file_extensions[0],
-                                               filetypes=self.supported_file_extensions)
+                                               filetypes=self.supported_file_extensions,
+                                               initialdir=expanduser('~/Desktop'))
 
         try:
             file = open(file_path, 'r')
@@ -452,7 +454,8 @@ class PyEdit:
             title = 'Save file...' if not save_as else 'Save file as...'
             file_path = filedialog.asksaveasfilename(title=title,
                                                      defaultextension=self.supported_file_extensions[0],
-                                                     filetypes=self.supported_file_extensions)
+                                                     filetypes=self.supported_file_extensions,
+                                                     initialdir=expanduser('~/Desktop'))
             if file_path != '':
                 self.editors[selected_tab].update_file_name(file_path)
 
