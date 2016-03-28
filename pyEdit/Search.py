@@ -130,11 +130,11 @@ class Search:
             ln_col = str(index).split('.')
             index2 = str(ln_col[0]) + '.' + str(int(ln_col[1]) + self.var_found_length.get())
 
-            self.var_last_found_index.set(index2)
+            self.var_last_found_index.set(index2 if not backwards else index)
 
             self.active_editor.text_widget.tag_remove('sel', '1.0', 'end')
             self.active_editor.text_widget.tag_add('sel', index, index2)
-            self.active_editor.text_widget.mark_set('insert', index2)
+            self.active_editor.text_widget.mark_set('insert', index2 if not backwards else index)
             self.active_editor.text_widget.see('insert')
             self.active_editor.highlight_selected_text()
 

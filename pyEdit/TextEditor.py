@@ -70,10 +70,6 @@ class TextEditor:
         self.index = self.parent.notebook.index(self.parent.notebook.tabs()[-1])
         self.parent.notebook.select(self.index)
 
-        self.config_update(config)
-
-        self.text_widget.focus_set()
-
         # Banned keys for <KeyRelease> event
         self.banned_event_keys = ['Control_L', 'Control_R',
                                   'Shift_L', 'Shift_R',
@@ -94,6 +90,10 @@ class TextEditor:
         self.text_widget.bind('<ButtonRelease>', self.mouse)
         self.text_widget.bind('<B1-Motion>', self.mouse_motion)
         self.text_widget.bind('<Control-a>', self.select_all)
+
+        self.config_update(config)
+
+        self.text_widget.focus_set()
 
     def scroll_update(self, *event):
         if 'moveto' in event[0]:
