@@ -33,7 +33,6 @@ from pyEdit.Tooltip import *
 class PyEdit:
     def __init__(self, root):
         self.editors = []
-        self.clipboards = []
         self.config = []
 
         self.os = platform.system()
@@ -372,7 +371,7 @@ class PyEdit:
 
     def new_tab(self, event=None, file_path='', content=''):
         self.editors.append(TextEditor(self, file_path, content, self.config))
-        self.clipboards.append('')
+        # self.clipboards.append('')
         self.update_title()
 
     def close_tab(self, event=None, app_exit=False):
@@ -408,7 +407,7 @@ class PyEdit:
             self.editors[selected_tab].text_widget.unbind(bind)
 
         self.editors.remove(self.editors[selected_tab])
-        self.clipboards.remove(self.clipboards[selected_tab])
+        # self.clipboards.remove(self.clipboards[selected_tab])
         self.notebook.forget(selected_tab)
 
         if self.notebook_no_tabs('', message_type='none'):
@@ -485,7 +484,6 @@ class PyEdit:
             else:
                 self.notebook.tab(selected_tab, text='*' + self.editors[selected_tab].file_name)
         except TclError:
-            # self.editors[selected_tab].text_widget.edit_redo()
             print('undo error')
             return
 
@@ -514,11 +512,9 @@ class PyEdit:
         if self.notebook_no_tabs('No tabs, nothing to cut...', 'message'):
             return
 
+        selected_tab = self.get_selected_tab_index()
         try:
-            selected_tab = self.get_selected_tab_index()
-            self.clipboards[selected_tab] = self.editors[selected_tab].text_widget.get('sel.first', 'sel.last')
-            self.editors[selected_tab].text_widget.delete('sel.first', 'sel.last')
-            print('Cut: ' + self.clipboards[selected_tab])
+            self.editors[selected_tab].text_widget.event_generate('<<Cut>>')
         except TclError:
             print('cut error')
             return
@@ -530,10 +526,9 @@ class PyEdit:
         if self.notebook_no_tabs('No tabs, nothing to copy...', 'message'):
             return
 
+        selected_tab = self.get_selected_tab_index()
         try:
-            selected_tab = self.get_selected_tab_index()
-            self.clipboards[selected_tab] = self.editors[selected_tab].text_widget.get('sel.first', 'sel.last')
-            print('Copied: ' + self.clipboards[selected_tab])
+            self.editors[selected_tab].text_widget.event_generate('<<Copy>>')
         except TclError:
             print('copy error')
             return
@@ -546,10 +541,9 @@ class PyEdit:
             return
 
         selected_tab = self.get_selected_tab_index()
-        if self.clipboards[selected_tab] != '':
-            self.editors[selected_tab].text_widget.insert('insert', self.clipboards[selected_tab])
-            print('Pasted: ' + self.clipboards[selected_tab])
-        else:
+        try:
+            self.editors[selected_tab].text_widget.event_generate('<<Paste>>')
+        except TclError:
             print('paste error')
 
         self.editors[selected_tab].highlight_current_line()
