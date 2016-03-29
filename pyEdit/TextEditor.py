@@ -55,7 +55,7 @@ class TextEditor:
         self.text_widget.delete('1.0', 'end')
         self.text_widget.insert('end', content)
         self.text_widget.mark_set('insert', '1.0')
-        self.text_widget.see('1.0')
+        self.text_widget.see('insert')
         self.text_widget.edit_modified(False)
 
         self.scroll_bar = Scrollbar(self.frame, bd=0, orient='vertical', command=self.scroll_update)
@@ -153,7 +153,7 @@ class TextEditor:
     def highlight_current_line(self):
         if self.conf_highlight_current_line:
             self.text_widget.tag_remove('current_line', '1.0', 'end')
-            # Where is the insert cursor
+            # Position of insert cursor
             current_pos = self.text_widget.index('insert')
             current_line = current_pos[:current_pos.find('.')]
             start_index = str(current_line) + '.0'
@@ -169,7 +169,6 @@ class TextEditor:
             self.text_widget.tag_add('selected_text', 'sel.first', 'sel.last')
             self.text_widget.tag_config('selected_text', background='LightBlue3')
         except TclError:
-            # print('highlight_selected_text error')
             return
 
     def unhighlight_current_line(self):
@@ -209,7 +208,8 @@ class TextEditor:
             if self.line_number_widget is None:
                 self.line_number_widget = LineNumbers(self.frame, self.text_widget)
                 self.text_widget.bind('<Configure>', self.line_number_widget.update)
-            self.line_number_widget.line_widget.config(font=self.conf_font)
+            line_widget_font = font.Font(family=config[4], size=config[5], weight='normal')
+            self.line_number_widget.line_widget.config(font=line_widget_font)
             self.line_number_widget.update()
         else:
             if self.line_number_widget is not None:
@@ -226,6 +226,7 @@ class TextEditor:
 
         window_geometry = self.parent.root.geometry()
         self.parent.root.geometry(window_geometry)
+        self.text_widget.see('insert')
 
     def select_all(self, event=None):
         self.text_widget.tag_add('sel', '1.0', 'end')

@@ -44,6 +44,9 @@ class Help:
 
         self.font = font.Font(family='Monospace', size=10, weight='normal')
 
+        self.font_spacing = None
+        self.font_spacing = self.font.metrics('descent')
+
         self.text_widget = Text(self.root,
                                 relief='flat',
                                 bd=0,

@@ -62,7 +62,7 @@ class LineNumbers:
                         first_char_bbox[1] += first_char_bbox[3]
                         self.line_num += '\n'
             except Exception:
-                return
+                pass
 
         self.line_widget.config(state='normal')
         self.line_widget.delete('1.0', 'end')

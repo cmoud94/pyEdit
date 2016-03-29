@@ -508,13 +508,18 @@ class PyEdit:
         self.editors[selected_tab].highlight_current_line()
         self.update_title()
 
+    # TODO: Fix me!
     def cut(self, event=None):
         if self.notebook_no_tabs('No tabs, nothing to cut...', 'message'):
             return
 
         selected_tab = self.get_selected_tab_index()
         try:
-            self.editors[selected_tab].text_widget.event_generate('<<Cut>>')
+            # self.editors[selected_tab].text_widget.event_generate('<<Cut>>')
+            text = self.editors[selected_tab].text_widget.get('sel.first', 'sel.last')
+            self.editors[selected_tab].text_widget.delete('sel.first', 'sel.last')
+            self.editors[selected_tab].text_widget.clipboard_clear()
+            self.editors[selected_tab].text_widget.clipboard_append(text)
         except TclError:
             print('cut error')
             return
@@ -522,13 +527,17 @@ class PyEdit:
         self.editors[selected_tab].highlight_current_line()
         self.update_title()
 
+    # TODO: Fix me!
     def copy(self, event=None):
         if self.notebook_no_tabs('No tabs, nothing to copy...', 'message'):
             return
 
         selected_tab = self.get_selected_tab_index()
         try:
-            self.editors[selected_tab].text_widget.event_generate('<<Copy>>')
+            # self.editors[selected_tab].text_widget.event_generate('<<Copy>>')
+            text = self.editors[selected_tab].text_widget.get('sel.first', 'sel.last')
+            self.editors[selected_tab].text_widget.clipboard_clear()
+            self.editors[selected_tab].text_widget.clipboard_append(text)
         except TclError:
             print('copy error')
             return
