@@ -79,11 +79,6 @@ class TextEditor:
         self.text_widget.unbind_class('Text', '<Control-o>')
         self.text_widget.unbind_class('Text', '<Control-a>')
         self.text_widget.unbind_class('Text', '<Control-d>')
-        # self.text_widget.unbind_class('Text', '<<Undo>>')
-        # self.text_widget.unbind_class('Text', '<<Redo>>')
-        # self.text_widget.unbind_class('Text', '<<Cut>>')
-        # self.text_widget.unbind_class('Text', '<<Copy>>')
-        # self.text_widget.unbind_class('Text', '<<Paste>>')
 
         # Shortcuts init
         self.text_widget.bind('<KeyRelease>', self.key)

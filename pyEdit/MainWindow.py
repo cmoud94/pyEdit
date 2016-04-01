@@ -157,7 +157,7 @@ class PyEdit:
                                  command=self.new_tab)
         button_new_file.grid(column=0, row=0, sticky='nsew')
 
-        tooltip_new_file = Tooltip(button_new_file, 'Create new file')
+        Tooltip(button_new_file, 'Create new file')
 
         # Open file button
         button_open = Button(frame_toolbar,
@@ -166,7 +166,7 @@ class PyEdit:
                              command=self.open_file)
         button_open.grid(column=1, row=0, sticky='nsew')
 
-        tooltip_open = Tooltip(button_open, 'Open file')
+        Tooltip(button_open, 'Open file')
 
         # Save file button
         button_save = Button(frame_toolbar,
@@ -175,7 +175,7 @@ class PyEdit:
                              command=self.save_file)
         button_save.grid(column=2, row=0, sticky='nsew')
 
-        tooltip_save = Tooltip(button_save, 'Save file')
+        Tooltip(button_save, 'Save file')
 
         # Separator
         separator_1 = Separator(frame_toolbar, orient='vertical')
@@ -188,7 +188,7 @@ class PyEdit:
                              command=self.undo)
         button_undo.grid(column=4, row=0, sticky='nsew')
 
-        tooltip_undo = Tooltip(button_undo, 'Undo')
+        Tooltip(button_undo, 'Undo')
 
         # Redo button
         button_redo = Button(frame_toolbar,
@@ -197,7 +197,7 @@ class PyEdit:
                              command=self.redo)
         button_redo.grid(column=5, row=0, sticky='nsew')
 
-        tooltip_redo = Tooltip(button_redo, 'Redo')
+        Tooltip(button_redo, 'Redo')
 
         # Separator
         separator_2 = Separator(frame_toolbar, orient='vertical')
@@ -210,7 +210,7 @@ class PyEdit:
                             command=self.cut)
         button_cut.grid(column=7, row=0, sticky='nsew')
 
-        tooltip_cut = Tooltip(button_cut, 'Cut')
+        Tooltip(button_cut, 'Cut')
 
         # Copy button
         button_copy = Button(frame_toolbar,
@@ -219,7 +219,7 @@ class PyEdit:
                              command=self.copy)
         button_copy.grid(column=8, row=0, sticky='nsew')
 
-        tooltip_copy = Tooltip(button_copy, 'Copy')
+        Tooltip(button_copy, 'Copy')
 
         # Paste button
         button_paste = Button(frame_toolbar,
@@ -228,7 +228,7 @@ class PyEdit:
                               command=self.paste)
         button_paste.grid(column=9, row=0, sticky='nsew')
 
-        tooltip_paste = Tooltip(button_paste, 'Paste')
+        Tooltip(button_paste, 'Paste')
 
         # Separator
         separator_3 = Separator(frame_toolbar, orient='vertical')
@@ -241,7 +241,7 @@ class PyEdit:
                                command=self.find)
         button_search.grid(column=11, row=0, sticky='nsew')
 
-        tooltip_search = Tooltip(button_search, 'Search')
+        Tooltip(button_search, 'Search')
 
         # Replace button
         button_replace = Button(frame_toolbar,
@@ -250,7 +250,7 @@ class PyEdit:
                                 command=self.find_and_replace)
         button_replace.grid(column=12, row=0, sticky='nsew')
 
-        tooltip_replace = Tooltip(button_replace, 'Replace')
+        Tooltip(button_replace, 'Replace')
 
         return frame_toolbar
 
@@ -290,15 +290,18 @@ class PyEdit:
             return
 
         if event is not None:
-            x, y, widget = event.x, event.y, event.widget
-            elem = widget.identify(x, y)
-            index = widget.index('@%d,%d' % (x, y))
+            try:
+                x, y, widget = event.x, event.y, event.widget
+                elem = widget.identify(x, y)
+                index = widget.index('@%d,%d' % (x, y))
 
-            if 'close' in elem:
-                widget.state(['pressed'])
-                widget.pressed_index = index
+                if 'close' in elem:
+                    widget.state(['pressed'])
+                    widget.pressed_index = index
 
-            self.editors[self.get_selected_tab_index()].update_statusbar()
+                self.editors[self.get_selected_tab_index()].update_statusbar()
+            except TclError:
+                return
 
     def tab_btn_release(self, event=None):
         if self.notebook_no_tabs():
@@ -313,8 +316,6 @@ class PyEdit:
         index = widget.index('@%d,%d' % (x, y))
 
         if 'close' in elem and widget.pressed_index == index:
-            # widget.forget(index)
-            widget.event_generate('<<NotebookClosedTab>>')
             self.close_tab()
 
         widget.state(['!pressed'])
@@ -348,11 +349,6 @@ class PyEdit:
         self.root.bind_all('<Control-w>', self.close_tab)
 
         # Edit shortcuts
-        self.root.bind_all('<Control-z>', self.undo)
-        self.root.bind_all('<Control-Z>', self.redo)
-        self.root.bind_all('<Control-x>', self.cut)
-        self.root.bind_all('<Control-c>', self.copy)
-        self.root.bind_all('<Control-v>', self.paste)
         self.root.bind_all('<Control-period>', self.preferences)
 
         # Search shortcuts
@@ -371,7 +367,6 @@ class PyEdit:
 
     def new_tab(self, event=None, file_path='', content=''):
         self.editors.append(TextEditor(self, file_path, content, self.config))
-        # self.clipboards.append('')
         self.update_title()
 
     def close_tab(self, event=None, app_exit=False):
@@ -385,7 +380,7 @@ class PyEdit:
                                                   'Save file before closing?',
                                                   icon='question',
                                                   type='yesnocancel',
-                                                  default='cancel',
+                                                  default='yes',
                                                   parent=self.root)
                 if response == 'yes':
                     self.save_file()
@@ -407,7 +402,6 @@ class PyEdit:
             self.editors[selected_tab].text_widget.unbind(bind)
 
         self.editors.remove(self.editors[selected_tab])
-        # self.clipboards.remove(self.clipboards[selected_tab])
         self.notebook.forget(selected_tab)
 
         if self.notebook_no_tabs('', message_type='none'):
@@ -432,7 +426,7 @@ class PyEdit:
             file.close()
             self.new_tab(file_path=file_path, content=content)
         except IOError:
-            print('File not found or \'Cancel\' pressed.')
+            print('IO error or \'Cancel\' pressed.')
 
     def save_file(self, event=None, save_as=False):
         if self.notebook_no_tabs('save'):
@@ -508,18 +502,13 @@ class PyEdit:
         self.editors[selected_tab].highlight_current_line()
         self.update_title()
 
-    # TODO: Fix me!
     def cut(self, event=None):
         if self.notebook_no_tabs('No tabs, nothing to cut...', 'message'):
             return
 
         selected_tab = self.get_selected_tab_index()
         try:
-            # self.editors[selected_tab].text_widget.event_generate('<<Cut>>')
-            text = self.editors[selected_tab].text_widget.get('sel.first', 'sel.last')
-            self.editors[selected_tab].text_widget.delete('sel.first', 'sel.last')
-            self.editors[selected_tab].text_widget.clipboard_clear()
-            self.editors[selected_tab].text_widget.clipboard_append(text)
+            self.editors[selected_tab].text_widget.event_generate('<<Cut>>')
         except TclError:
             print('cut error')
             return
@@ -527,17 +516,13 @@ class PyEdit:
         self.editors[selected_tab].highlight_current_line()
         self.update_title()
 
-    # TODO: Fix me!
     def copy(self, event=None):
         if self.notebook_no_tabs('No tabs, nothing to copy...', 'message'):
             return
 
         selected_tab = self.get_selected_tab_index()
         try:
-            # self.editors[selected_tab].text_widget.event_generate('<<Copy>>')
-            text = self.editors[selected_tab].text_widget.get('sel.first', 'sel.last')
-            self.editors[selected_tab].text_widget.clipboard_clear()
-            self.editors[selected_tab].text_widget.clipboard_append(text)
+            self.editors[selected_tab].text_widget.event_generate('<<Copy>>')
         except TclError:
             print('copy error')
             return
@@ -567,8 +552,6 @@ class PyEdit:
 
         if self.notebook_no_tabs('', 'none'):
             return
-
-        # print('config_update: ' + str(self.config))
 
         for i in range(len(self.editors)):
             self.editors[i].config_update(self.config)
@@ -606,9 +589,8 @@ class PyEdit:
             for index in range(len(self.editors) - 1, -1, -1):
                 self.notebook.select(index)
                 self.close_tab(app_exit=True)
-        conf = Preferences(self).config_read()
-        conf[8] = self.root.geometry()
-        Preferences(self).config_write(config=conf)
+        self.config[8] = self.root.geometry()
+        Preferences(self).config_write(config=self.config)
         self.root.destroy()
 
     def notebook_no_tabs(self, message='', message_type='word'):

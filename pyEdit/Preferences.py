@@ -66,7 +66,7 @@ class Preferences:
 
         self.root = Toplevel()
         self.root.title('pyEdit - Preferences')
-        self.root.minsize(300, 0)
+        self.root.minsize(300, 50)
         self.root.resizable(False, False)
         self.root.option_add('*tearOff', FALSE)
         self.root.columnconfigure(0, weight=1)
@@ -247,12 +247,9 @@ class Preferences:
             print('Error while opening config file for write!')
             return
 
-        self.parent.config = conf
+        self.config_update(conf)
         if close:
             Utils.on_close(self)
-        else:
-            self.config_read()
-        self.parent.config_update()
 
     def font_config(self, event=None):
         FontSelector(self)
@@ -262,3 +259,7 @@ class Preferences:
             self.chkbtn_text_wrap_mode.config(state='disable')
         elif self.chkbtn_text_wrap_enable.var.get() == 1:
             self.chkbtn_text_wrap_mode.config(state='normal')
+
+    def config_update(self, config):
+        self.parent.config = config
+        self.parent.config_update()
