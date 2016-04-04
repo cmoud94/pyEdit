@@ -1,6 +1,7 @@
 # pyEdit
-User Interfaces course project in python.
+User Interfaces course project in Python.
 
-[License](LICENSE)
+# License
+pyEdit is licensed under GNU GPL v3 [License](LICENSE)
 
 This project uses [PyVmMonitor](http://pyvmmonitor.com).
